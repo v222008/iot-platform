@@ -1,0 +1,33 @@
+{
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "\"python3\" -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"folder_exclude_patterns":
+			[
+				"deps/micropython",
+				"deps/micropython-lib"
+			],
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"anaconda_linting": true,
+		"anaconda_linting_behaviour": "always",
+		"pep257": false,
+		"pep8_ignore":
+		[
+			"E501"
+		],
+		"python_interpreter": "python3"
+	}
+}

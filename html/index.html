@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WS2812B WiFi Controller</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Dummy favicon. We don't want browser to send unwanted requests -->
+    <link rel="icon" type="image/gif" href="data:image/gif;base64,R0lGODlhEAAQAIAAAAAAAAAAACH5BAkAAAEALAAAAAAQABAAAAIgjI+py+0PEQiT1lkNpppnz4HfdoEH2W1nCJRfBMfyfBQAOw==" />
+    <!-- Our main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="js/vendor/fontawesome-all.js"></script>
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top" id="nav-main">
+      <a class="navbar-brand" href="#"><i class="far fa-lightbulb"></i> WS2812B</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link disabled" href="#setup_welcome">Welcome</a>
+          </li>
+          <li class="nav-item disabled">
+            <a class="nav-link" href="#setup_strip">LedStrip</a>
+          </li>
+          <li class="nav-item disabled">
+            <a class="nav-link" href="#setup_wifi">WiFi</a>
+          </li>
+          <li class="nav-item disabled">
+            <a class="nav-link" href="#setup_mqtt">MQTT</a>
+          </li>
+          <li class="nav-item disabled">
+            <a class="nav-link" href="#setup_http">HTTP</a>
+          <li class="nav-item disabled">
+            <a class="nav-link" href="#setup_done">Done!</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Placeholder for error message -->
+    <div class="container" id="form_error_placeholder"></div>
+
+    <!-- Setup modals -->
+    <div class="modal fade" id="setup_strip_test" tabindex="-1" role="dialog" aria-labelledby="setup_strip_test_title" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="setup_strip_test_title">LED Strip Test</h5>
+          </div>
+          <div class="modal-body">
+            <p class="lead">Make sure that you've connected it right:</p>
+            <ol>
+              <li>Power: must be powered by at least <mark>5V 3A DC</mark> supply</li>
+              <li>Polarity: make sure that you've connected +5v to +5v and GND to GND</li>
+              <li>Data direction: make sure that data wire arrow flows from controller</li>
+              <li>Wire length: It is not recommended to use wires between controller and LED longer than 1m (3ft)</li>
+            </ol>
+            <p>During this test your LED strip will light each color for 2 seconds.</p>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="setup_2_run">Run Test</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setup welcome page -->
+    <div class="container page" id="setup_welcome">
+      <div class="col-md-6 offset-md-3 jumbotron text-center">
+        <h1 class="display-3">Welcome!</h1>
+        <p class="lead"><b>WS2812B</b> WiFi Enabled Controller is ready to be configured!</p>
+        <div class="setup-next">
+          <a id="setup_welcome_btn" class="btn btn-lg btn-outline-primary" href="#setup_strip" role="button">Get Started</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setup led strip page -->
+    <div class="container page" id="setup_strip">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="display-4 setup-header">LED Strip</h1>
+        <form action="ledstrip" method="PUT" id="setup-led-form" role="form">
+
+          <div class="form-group">
+            <label>What type of WS2812B you've connected?</label>
+            <div class="btn-group btn-group-toggle d-flex" role="group" data-toggle="buttons">
+              <label class="btn btn-secondary w-100 active">
+                <input type="radio" name="led_type" value="rgb" checked>RGB
+              </label>
+              <label class="btn btn-secondary w-100">
+                <input type="radio" name="led_type" value="rgbw">RGBW
+              </label>
+              <label class="btn btn-secondary w-100">
+                <input type="radio" name="led_type" value="rgbww">RGBWW
+              </label>
+              <label class="btn btn-secondary w-100">
+                <input type="radio" name="led_type" value="rgbnw">RGBNW
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="led_cnt">How many LEDs total in the strip?</label>
+            <input type="number" name=led_cnt class="form-control" id="led_cnt" placeholder="e.g. 120" min=1 max=150 required>
+            <div class="invalid-feedback">
+              Up to 150 LEDs supported.
+            </div>
+          </div>
+
+        </form>
+        <div class="setup-next">
+          <div class="row">
+            <div class="col-6">
+              <button id="setup_strip_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal" data-target="#setup_strip_test">Test me!</button>
+            </div>
+            <div class="col-6 text-right">
+              <a id="setup_strip_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#setup-led-form" href="#setup_wifi">Next: WiFi</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- of led strip setup -->
+  </body>
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/vendor/jquery-3.2.1.min.js"></script>
+  <script src="js/vendor/popper.min.js"></script>
+  <script src="js/vendor/bootstrap.min.js"></script>
+  <!-- ESP scripts -->
+  <script src="js/main.js"></script>
+  <script src="js/setup.js"></script>
+
+</html>

@@ -1,0 +1,19 @@
+
+body {
+  padding-top: 3.5rem;
+}
+
+.page {
+  display: none;
+}
+
+.setup-next {
+  padding-top: 1rem;
+}
+.setup-next a {
+  margin-right: 1rem;
+}
+
+.setup-header {
+  margin-bottom: 2rem;
+}

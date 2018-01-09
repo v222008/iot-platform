@@ -1,0 +1,9 @@
+[submodule "deps/micropython-lib"]
+	path = deps/micropython-lib
+	url = https://github.com/micropython/micropython-lib.git
+[submodule "deps/micropython"]
+	path = deps/micropython
+	url = https://github.com/micropython/micropython.git
+[submodule "deps/tinyweb"]
+	path = deps/tinyweb
+	url = https://github.com/belyalov/tinyweb.git
