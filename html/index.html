@@ -48,7 +48,7 @@
     <div class="container" id="form_error_placeholder"></div>
 
     <!-- Setup modals -->
-    <div class="modal fade" id="setup_strip_test" tabindex="-1" role="dialog" aria-labelledby="setup_strip_test_title" aria-hidden="true">
+    <div class="modal fade" id="setup_strip_test_modal" tabindex="-1" role="dialog" data-keyboard="false" aria-labelledby="setup_strip_test_title" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -66,7 +66,7 @@
 
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="setup_2_run">Run Test</button>
+            <button type="button" class="btn btn-primary" id="setup_strip_run_test_btn">Run Test</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
@@ -88,8 +88,8 @@
     <div class="container page" id="setup_strip">
       <div class="col-md-6 offset-md-3">
         <h1 class="display-4 setup-header">LED Strip</h1>
-        <form action="ledstrip" method="PUT" id="setup-led-form" role="form">
 
+        <form action="config" method="PUT" id="setup-led-form" role="form">
           <div class="form-group">
             <label>What type of WS2812B you've connected?</label>
             <div class="btn-group btn-group-toggle d-flex" role="group" data-toggle="buttons">
@@ -114,12 +114,12 @@
               Up to 150 LEDs supported.
             </div>
           </div>
-
         </form>
+
         <div class="setup-next">
           <div class="row">
             <div class="col-6">
-              <button id="setup_strip_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal" data-target="#setup_strip_test">Test me!</button>
+              <button id="setup_strip_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal" data-target="#setup_strip_test_modal">Test me!</button>
             </div>
             <div class="col-6 text-right">
               <a id="setup_strip_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#setup-led-form" href="#setup_wifi">Next: WiFi</a>
@@ -128,6 +128,7 @@
         </div>
       </div>
     </div> <!-- of led strip setup -->
+
   </body>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->

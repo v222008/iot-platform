@@ -1,8 +1,12 @@
+
+// (C) Konstantin Belyalov 2017-2018
+// MIT license
+
 // 1 - common
 // 2 - setup
 // var mode = 2;
 
-var api_base = "http://localhost:8081/api/";
+var api_base = "http://localhost:8081/v1/";
 
 // HTML form to json helper
 (function ($) {
@@ -32,9 +36,19 @@ bootstrap_alert.error = function(message, placeholder)
         message + '</span></div>');
 }
 
+bootstrap_alert.ajax_error = function(uri, text)
+{
+    bootstrap_alert.error('<b>' + uri + '</b> failed: ' + text, '#form_error_placeholder');
+}
+
 bootstrap_alert.clean = function(placeholder)
 {
     $(placeholder).empty()
+}
+
+bootstrap_alert.ajax_clean = function()
+{
+    bootstrap_alert.clean('#form_error_placeholder');
 }
 
 // Generic submitter of HTML forms using JSON REST
@@ -44,7 +58,7 @@ $("form").each(function(idx) {
         e.preventDefault();
         e.stopPropagation();
         // cleanup old error messages
-        bootstrap_alert.clean("#form_error_placeholder")
+        bootstrap_alert.ajax_clean();
         // send ajax instead of regular form submit
         var uri = api_base + $(this).attr("action");
         var method = $(this).attr("method");
@@ -63,9 +77,8 @@ $("form").each(function(idx) {
             error: function(xhr, resp, text) {
                 console.log(method, uri, resp, text);
                 console.log(JSON.stringify(jdata));
-                var err = "<b>" + method + " " + uri + "</b> failed: " + text;
-                bootstrap_alert.error(err, "#form_error_placeholder");
-                throw err;
+                bootstrap_alert.ajax_error(uri, text);
+                throw text;
             }
         })
     })
