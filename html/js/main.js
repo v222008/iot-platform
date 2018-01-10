@@ -63,6 +63,7 @@ $("form").each(function(idx) {
         var uri = api_base + $(this).attr("action");
         var method = $(this).attr("method");
         var jdata = $(setup_led_form).serializeFormJSON();
+        console.log('sending', jdata, 'to', uri);
         $.ajax({
             async: false,
             url: uri,

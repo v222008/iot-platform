@@ -5,11 +5,13 @@ MIT license
 """
 
 STA_IF = 1
-network_phy_mode = 0
+network_phy_mode = 3
 
 
-def phy_mode():
-    pass
+def phy_mode(mode=None):
+    if mode:
+        network_phy_mode = mode
+    return network_phy_mode
 
 
 class WLAN():
@@ -18,6 +20,20 @@ class WLAN():
 
     def isconnected(self):
         return True
+
+    def active(self, state=None):
+        if state is None:
+            return True
+
+    def connect(sefl, ssid, passwd):
+        pass
+
+    def status(self):
+        return 1
+
+    def config(self, param):
+        if param == 'mac':
+            return b'\xb4u\x0e\x88\xed\xe4'
 
     def ifconfig(self):
         return ('1.1.1.10', '255.255.255.0', '1.1.1.1', '8.8.8.8')

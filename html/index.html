@@ -24,20 +24,21 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link disabled" href="#setup_welcome">Welcome</a>
+            <a class="nav-link" href="#setup_welcome">Welcome</a>
           </li>
-          <li class="nav-item disabled">
+          <li class="nav-item">
             <a class="nav-link" href="#setup_strip">LedStrip</a>
           </li>
-          <li class="nav-item disabled">
+          <li class="nav-item">
             <a class="nav-link" href="#setup_wifi">WiFi</a>
           </li>
-          <li class="nav-item disabled">
+          <li class="nav-item">
             <a class="nav-link" href="#setup_mqtt">MQTT</a>
           </li>
-          <li class="nav-item disabled">
+          <li class="nav-item">
             <a class="nav-link" href="#setup_http">HTTP</a>
-          <li class="nav-item disabled">
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="#setup_done">Done!</a>
           </li>
         </ul>
@@ -128,6 +129,21 @@
         </div>
       </div>
     </div> <!-- of led strip setup -->
+
+    <!-- Setup WiFi page -->
+    <div class="container page" id="setup_wifi">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="display-4 setup-header">WiFi</h1>
+
+        <div class="setup-next">
+          <div class="row">
+            <div class="col-6 text-right">
+              <a id="setup_wifi_next_btn" class="btn btn-lg btn-outline-primary" role="button" href="#setup_mqtt">Next: MQTT</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- of WiFi setup -->
 
   </body>
 
