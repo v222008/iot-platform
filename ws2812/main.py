@@ -15,7 +15,7 @@ config_wifi_fn = 'wifi.json'
 config_fn = 'config.json'
 
 
-class api_test():
+class led_test():
     """API to test LED strip connection"""
 
     def put(self, data):
@@ -23,16 +23,49 @@ class api_test():
         return {'message': 'success'}
 
 
-class api_config():
-    """API to manage config"""
+class config():
+    """Main configuration"""
+
+    def __init__(self):
+        # Config template
+        self.template = {'led': {'cnt': '',
+                                 'type': 'rgb'
+                                 },
+                         'http': {}}
+        # Load current settings
+        try:
+            with open(config_fn, 'rb') as f:
+                self.config = json.load(f)
+                print('Loaded config: {}'.format(self.config))
+        except (OSError, ValueError):
+            # No config preset, create empty
+            print('Config not found / invalid, using default')
+            self.config = self.template.copy()
+
+    def save_config(self):
+        with open(config_fn, 'wb') as f:
+            f.write(json.dumps(self.config))
+
+    def get(self, data):
+        """Get running config"""
+        return self.config
 
     def put(self, data):
-        print(data)
-        return {'message': 'success'}
+        """Merge running config"""
+        self.config.update(data)
+        self.save_config()
+        return {'message': 'config merged'}
+
+    def post(self, data):
+        """Replace running config"""
+        self.config = self.template.copy()
+        self.config.update(data)
+        self.save_config()
+        return {'message': 'config replaced'}
 
 
-class api_wifi():
-    """API to manage WiFi connectivity"""
+class wifi_config():
+    """WiFi configuration"""
 
     def __init__(self):
         self.auth_modes = ['open', 'WEP', 'WPA-PSK', 'WPA2-PSK', 'WPA/WPA2-PSK']
@@ -168,8 +201,8 @@ def index(req, resp):
 # --- main starts here ---
 
 # Add RestAPI resources
-web.add_resource(api_test, '/v1/test')
-web.add_resource(api_config, '/v1/config')
-web.add_resource(api_wifi, '/v1/wifi')
+web.add_resource(led_test, '/v1/test')
+web.add_resource(config, '/v1/config')
+web.add_resource(wifi_config, '/v1/wifi')
 
 web.run(host='0.0.0.0', port=8081)
