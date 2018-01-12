@@ -8,6 +8,8 @@
 
 var api_base = "http://localhost:8081/v1/";
 
+var menu_callbacks = {};
+
 // HTML form to json helper
 (function ($) {
     $.fn.serializeFormJSON = function () {
@@ -62,7 +64,15 @@ $("form").each(function(idx) {
         // send ajax instead of regular form submit
         var uri = api_base + $(this).attr("action");
         var method = $(this).attr("method");
-        var jdata = $(setup_led_form).serializeFormJSON();
+        var parent_item = $(this).attr("parent-item");
+        var serialized = $(setup_led_form).serializeFormJSON();
+        var jdata = {};
+        console.log("parent", parent_item);
+        if (parent_item != "") {
+            jdata[parent_item] = serialized;
+        } else {
+            jdata = serialized;
+        }
         console.log('sending', jdata, 'to', uri);
         $.ajax({
             async: false,
@@ -109,7 +119,6 @@ $("[validate-n-submit]").each(function(idx) {
     } )
 });
 
-
 function toggle_menu(next)
 {
     if (next == "") {
@@ -125,6 +134,11 @@ function toggle_menu(next)
     $(".navbar-collapse").collapse('hide');
     // Hide current page, open next one
     $("div.page").hide();
+    // Run page activation callback, if present
+    if (next in menu_callbacks) {
+        menu_callbacks[next]();
+    }
+    // Show page
     $(next).show();
 }
 
@@ -134,10 +148,65 @@ function on_hash_change()
     toggle_menu(window.location.hash);
 }
 
+function on_config_loaded(c)
+{
+    setup_wifi_config_updated(c["wifi"]);
+    setup_led_config_updated(c["led"]);
+}
+
+var refresh_config_timer;
+var refresh_config_cnt = 1;
+
+function refresh_config()
+{
+    // Immediately refresh config
+    clearTimeout(refresh_config_timer);
+    refresh_config_cnt = 1;
+    refresh_config_timer_cb();
+}
+
+function refresh_config_timer_cb()
+{
+    // If time is not elapsed - reschedule timer in 1 sec
+    refresh_config_cnt--;
+    if (refresh_config_cnt > 0) {
+        // Update button count down text
+        $("#no_device_refresh_btn").html("Retry in " + refresh_config_cnt + " sec");
+        refresh_config_timer = setTimeout(refresh_config_timer_cb, 1000);
+        return;
+    }
+
+    // Timeout, refreshing config
+    refresh_config_cnt = 10;
+    $("#no_device_refresh_btn").html("Retrying...");
+    $("#no_device_refresh_btn").prop('disabled', true);
+    // Send request
+    $.ajax({
+        dataType: "json",
+        url: api_base + "config",
+    }).done(function(data) {
+        console.log("Config refreshed", data);
+        $('#no_device_present_modal').modal('hide');
+        on_config_loaded(data);
+    }).fail(function() {
+        $('#no_device_present_modal').modal('show');
+    }).always(function() {
+        $("#no_device_refresh_btn").prop('disabled', false);
+        $("#no_device_refresh_btn").html("Retry in " + refresh_config_cnt + " sec");
+        setTimeout(refresh_config_timer_cb, 1000);
+    });
+}
+
+// Retry load config immediately button
+$("#no_device_refresh_btn").click(refresh_config);
+
 // main function when document is ready
 $(document).ready(function() {
     console.log("Ready, start from", window.location.hash);
+    // Show proper page by hashtag
     toggle_menu(window.location.hash);
+    // Load config (this function will also schedule periodical config refresh)
+    refresh_config();
 });
 
 // when user goes "back", i.e. on back button press

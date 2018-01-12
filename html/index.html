@@ -16,7 +16,7 @@
 
   <body>
 
-    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top" id="nav-main">
+    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
       <a class="navbar-brand" href="#"><i class="far fa-lightbulb"></i> WS2812B</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -48,6 +48,27 @@
     <!-- Placeholder for error message -->
     <div class="container" id="form_error_placeholder"></div>
 
+    <!-- No device present modal -->
+    <div class="modal fade" id="no_device_present_modal" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="setup_strip_test_title">Device is not responding</h5>
+          </div>
+          <div class="modal-body">
+            <p>Please make sure that:</p>
+            <ul>
+              <li>Device is powered on.</li>
+              <li>You're connected to the same WiFi Access Point</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="no_device_refresh_btn">Retry in 10 secs</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Setup modals -->
     <div class="modal fade" id="setup_strip_test_modal" tabindex="-1" role="dialog" data-keyboard="false" aria-labelledby="setup_strip_test_title" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -64,7 +85,6 @@
               <li>Wire length: It is not recommended to use wires between controller and LED longer than 1m (3ft)</li>
             </ol>
             <p>During this test your LED strip will light each color for 2 seconds.</p>
-
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" id="setup_strip_run_test_btn">Run Test</button>
@@ -90,30 +110,27 @@
       <div class="col-md-6 offset-md-3">
         <h1 class="display-4 setup-header">LED Strip</h1>
 
-        <form action="config" method="PUT" id="setup-led-form" role="form">
+        <form action="config" method="PUT" id="setup-led-form" role="form" parent-item="led">
           <div class="form-group">
             <label>What type of WS2812B you've connected?</label>
             <div class="btn-group btn-group-toggle d-flex" role="group" data-toggle="buttons">
-              <label class="btn btn-secondary w-100 active">
-                <input type="radio" name="led_type" value="rgb" checked>RGB
+              <label class="btn btn-secondary w-100 active" id="led_type_rgb">
+                <input type="radio" name="type" value="rgb" checked>RGB
               </label>
-              <label class="btn btn-secondary w-100">
-                <input type="radio" name="led_type" value="rgbw">RGBW
+              <label class="btn btn-secondary w-100" id="led_type_rgbw">
+                <input type="radio" name="type" value="rgbw">RGBW
               </label>
-              <label class="btn btn-secondary w-100">
-                <input type="radio" name="led_type" value="rgbww">RGBWW
+              <label class="btn btn-secondary w-100" id="led_type_rgbww">
+                <input type="radio" name="type" value="rgbww">RGBWW
               </label>
-              <label class="btn btn-secondary w-100">
-                <input type="radio" name="led_type" value="rgbnw">RGBNW
+              <label class="btn btn-secondary w-100" id="led_type_rgbnw">
+                <input type="radio" name="type" value="rgbnw">RGBNW
               </label>
             </div>
           </div>
           <div class="form-group">
             <label for="led_cnt">How many LEDs total in the strip?</label>
-            <input type="number" name=led_cnt class="form-control" id="led_cnt" placeholder="e.g. 120" min=1 max=150 required>
-            <div class="invalid-feedback">
-              Up to 150 LEDs supported.
-            </div>
+            <input type="number" name=cnt class="form-control" id="led_cnt" placeholder="e.g. 120" min=1 max=150 required>
           </div>
         </form>
 

@@ -61,3 +61,22 @@ function setup_strip_run_test_click(e)
 $("#setup_strip_test_btn").click(setup_strip_test_click);
 $("#setup_strip_run_test_btn").click(setup_strip_run_test_click);
 
+function setup_wifi_config_updated(c)
+{
+}
+
+function setup_led_config_updated(c)
+{
+    // Led cnt
+    $('#led_cnt').attr('value', c["cnt"]);
+    // Led type
+    $(setup_led_form + " div.btn-group label.btn").removeClass('active');
+    $("#led_type_" + c["type"]).addClass('active');
+}
+
+function setup_page_cb()
+{
+    console.log('setup page cb');
+}
+
+menu_callbacks['#setup_strip'] = setup_page_cb;
