@@ -7,3 +7,6 @@
 [submodule "deps/tinyweb"]
 	path = deps/tinyweb
 	url = https://github.com/belyalov/tinyweb.git
+[submodule "deps/micropython-esp-utils"]
+	path = deps/micropython-esp-utils
+	url = https://github.com/belyalov/micropython-esp-utils.git
