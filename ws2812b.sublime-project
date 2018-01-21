@@ -13,11 +13,18 @@
 		{
 			"folder_exclude_patterns":
 			[
-				"deps/micropython",
-				"deps/micropython-lib"
+				"deps",
 			],
 			"path": "."
-		}
+		},
+		{
+			"path": "deps/micropython-esp-utils",
+			"name": "esp-utils"
+		},
+		{
+			"path": "deps/tinyweb",
+			"name": "tinyweb"
+		},
 	],
 	"settings":
 	{

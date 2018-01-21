@@ -2,7 +2,7 @@
 // (C) Konstantin Belyalov 2017-2018
 // MIT license
 
-// Setup related functions
+// LED Strip Setup
 
 var setup_led_form = "#setup-led-form";
 
@@ -61,22 +61,14 @@ function setup_strip_run_test_click(e)
 $("#setup_strip_test_btn").click(setup_strip_test_click);
 $("#setup_strip_run_test_btn").click(setup_strip_run_test_click);
 
-function setup_wifi_config_updated(c)
-{
-}
-
-function setup_led_config_updated(c)
+function setup_led_strip_config_update(c)
 {
     // Led cnt
-    $('#led_cnt').attr('value', c["cnt"]);
+    $('#led_cnt').val(c["cnt"]);
     // Led type
     $(setup_led_form + " div.btn-group label.btn").removeClass('active');
     $("#led_type_" + c["type"]).addClass('active');
 }
 
-function setup_page_cb()
-{
-    console.log('setup page cb');
-}
-
-menu_callbacks['#setup_strip'] = setup_page_cb;
+pages_map['#setup_strip'] = {config_section: "led",
+                             on_config_update: setup_led_strip_config_update};

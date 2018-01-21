@@ -7,8 +7,24 @@
 // var mode = 2;
 
 var api_base = "http://localhost:8081/v1/";
+// var api_base = "/v1/";
 
-var menu_callbacks = {};
+var pages_map = {};
+
+// Python line string format function, e.g.:
+// "{0} is dead, but {1} is alive! {0} {2}".format("ASP", "ASP.NET")
+// taken from https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
 
 // HTML form to json helper
 (function ($) {
@@ -67,7 +83,6 @@ $("form").each(function(idx) {
         var parent_item = $(this).attr("parent-item");
         var serialized = $(setup_led_form).serializeFormJSON();
         var jdata = {};
-        console.log("parent", parent_item);
         if (parent_item != "") {
             jdata[parent_item] = serialized;
         } else {
@@ -97,7 +112,6 @@ $("form").each(function(idx) {
 
 // Generic handler for "save config" like buttons
 $("[validate-n-submit]").each(function(idx) {
-    console.log(this);
     $(this).click(function(e) {
         var form_sel = $(this).attr("validate-n-submit");
         var form = $(form_sel)[0];
@@ -119,8 +133,9 @@ $("[validate-n-submit]").each(function(idx) {
     } )
 });
 
-function toggle_menu(next)
+function toggle_page()
 {
+    var next = window.location.hash;
     if (next == "") {
         next = "#setup_welcome";
     }
@@ -132,46 +147,65 @@ function toggle_menu(next)
     $("li.nav-item.active").removeClass("active");
     $("a[href='"+next+"']").parent().addClass("active")
     $(".navbar-collapse").collapse('hide');
-    // Hide current page, open next one
+    // Hide current page
     $("div.page").hide();
-    // Run page activation callback, if present
-    if (next in menu_callbacks) {
-        menu_callbacks[next]();
+    // Run deactivate on all pages (TBD: optimize)
+    for (var i in pages_map) {
+        var page = pages_map[i];
+        if ("on_deactivate" in page) {
+            page["on_deactivate"]();
+        }
     }
-    // Show page
+    // Run page activation callback
+    console.log(pages_map);
+    if (next in pages_map) {
+        var page = pages_map[next];
+        if ("on_activate" in page) {
+            page["on_activate"]();
+        }
+    }
+    // Show new page
     $(next).show();
 }
 
-function on_hash_change()
+function on_config_loaded(config, first_run=false)
 {
-    console.log("Hash change", window.location.hash);
-    toggle_menu(window.location.hash);
-}
-
-function on_config_loaded(c)
-{
-    setup_wifi_config_updated(c["wifi"]);
-    setup_led_config_updated(c["led"]);
+    var hash = window.location.hash;
+    var sections = {};
+    for (var key in pages_map) {
+        if (hash == key && !first_run) {
+            continue;
+        }
+        var page = pages_map[key];
+        if ("config_section" in page) {
+            sections[page["config_section"]] = page["on_config_update"]
+        }
+    }
+    for (var key in config) {
+        if (key in sections) {
+            sections[key](config[key]);
+        }
+    }
 }
 
 var refresh_config_timer;
 var refresh_config_cnt = 1;
 
-function refresh_config()
+function refresh_config(first_run=false)
 {
     // Immediately refresh config
     clearTimeout(refresh_config_timer);
     refresh_config_cnt = 1;
-    refresh_config_timer_cb();
+    refresh_config_timer_cb(first_run);
 }
 
-function refresh_config_timer_cb()
+function refresh_config_timer_cb(first_run=false)
 {
     // If time is not elapsed - reschedule timer in 1 sec
     refresh_config_cnt--;
     if (refresh_config_cnt > 0) {
         // Update button count down text
-        $("#no_device_refresh_btn").html("Retry in " + refresh_config_cnt + " sec");
+        $("#no_device_refresh_btn").html("Retry in {0} sec".format(refresh_config_cnt));
         refresh_config_timer = setTimeout(refresh_config_timer_cb, 1000);
         return;
     }
@@ -185,29 +219,28 @@ function refresh_config_timer_cb()
         dataType: "json",
         url: api_base + "config",
     }).done(function(data) {
-        console.log("Config refreshed", data);
         $('#no_device_present_modal').modal('hide');
-        on_config_loaded(data);
+        on_config_loaded(data, first_run);
     }).fail(function() {
         $('#no_device_present_modal').modal('show');
     }).always(function() {
         $("#no_device_refresh_btn").prop('disabled', false);
-        $("#no_device_refresh_btn").html("Retry in " + refresh_config_cnt + " sec");
+        $("#no_device_refresh_btn").html("Retry in {0} sec".format(refresh_config_cnt));
         setTimeout(refresh_config_timer_cb, 1000);
     });
 }
 
-// Retry load config immediately button
+// No connection modal: handler for retry button
 $("#no_device_refresh_btn").click(refresh_config);
 
 // main function when document is ready
 $(document).ready(function() {
     console.log("Ready, start from", window.location.hash);
     // Show proper page by hashtag
-    toggle_menu(window.location.hash);
+    toggle_page();
     // Load config (this function will also schedule periodical config refresh)
-    refresh_config();
+    refresh_config(true);
 });
 
 // when user goes "back", i.e. on back button press
-window.onhashchange = on_hash_change;
+window.onhashchange = toggle_page;

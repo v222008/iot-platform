@@ -151,12 +151,19 @@
     <div class="container page" id="setup_wifi">
       <div class="col-md-6 offset-md-3">
         <h1 class="display-4 setup-header">WiFi</h1>
-
-        <div class="setup-next">
-          <div class="row">
-            <div class="col-6 text-right">
-              <a id="setup_wifi_next_btn" class="btn btn-lg btn-outline-primary" role="button" href="#setup_mqtt">Next: MQTT</a>
-            </div>
+        <p class="lead">Let's connect your device to WiFi Access Point</p>
+        <div class="row">
+          <table class="table table-bordered table-hover" id=setup_wifi_ssids>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <div class="row setup-next">
+          <div class="col-6">
+            <button id="setup_wifi_manual_btn" class="btn btn-lg btn-outline-secondary" role="button" data-toggle="modal" data-target="#setup_strip_test_modal">Manual Entry</button>
+          </div>
+          <div class="col-6 text-right">
+            <a id="setup_wifi_next_btn" class="btn btn-lg btn-outline-primary" role="button" href="#setup_mqtt">Next: MQTT</a>
           </div>
         </div>
       </div>
@@ -168,8 +175,9 @@
   <script src="js/vendor/jquery-3.2.1.min.js"></script>
   <script src="js/vendor/popper.min.js"></script>
   <script src="js/vendor/bootstrap.min.js"></script>
-  <!-- ESP scripts -->
+  <!-- WS2812 scripts -->
   <script src="js/main.js"></script>
-  <script src="js/setup.js"></script>
+  <script src="js/setup_led.js"></script>
+  <script src="js/setup_wifi.js"></script>
 
 </html>
