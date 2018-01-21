@@ -4,4 +4,6 @@
 
 Work in progress for now... Stay tuned..
 
-P.S. Checkout the [board schematic / design](https://easyeda.com/kr.belyalov/WS2812b_led_strip_controller-5b6d9e5de0324d9a89108fcd10161d9e)
+P.S. While software is being developed checkout these hardware part:
+* Schematic: https://easyeda.com/normal/schematic-ad064e31e8404d9ea8c5efc4c6ff6607
+* PCB design: https://easyeda.com/editor#id=044903af465c45638a47e1e123004e89
