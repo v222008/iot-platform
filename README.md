@@ -10,8 +10,8 @@ Yahooo, I've got some working prototype!
 ![Screenshot](screenshots/i2.png)
 ![Screenshot](screenshots/i3.png)
 
-### Prototype
-![Prototype](screenshots/i111.jpg)
+### Prototype (RC1 version)
+![Prototype](screenshots/i1111.jpg)
 
 
 ----
