@@ -133,6 +133,11 @@ $("[validate-n-submit]").each(function(idx) {
     } )
 });
 
+function update_progress_bar(bar, value)
+{
+    $(bar).css('width', value+'%').attr('aria-valuenow', value);
+}
+
 function toggle_page()
 {
     var next = window.location.hash;
@@ -168,14 +173,11 @@ function toggle_page()
     $(next).show();
 }
 
-function on_config_loaded(config, first_run=false)
+function on_config_loaded(config)
 {
     var hash = window.location.hash;
     var sections = {};
     for (var key in pages_map) {
-        if (hash == key && !first_run) {
-            continue;
-        }
         var page = pages_map[key];
         if ("config_section" in page) {
             sections[page["config_section"]] = page["on_config_update"]
@@ -183,7 +185,7 @@ function on_config_loaded(config, first_run=false)
     }
     for (var key in config) {
         if (key in sections) {
-            sections[key](config[key]);
+            sections[key](config[key], hash == key);
         }
     }
 }
@@ -191,15 +193,15 @@ function on_config_loaded(config, first_run=false)
 var refresh_config_timer;
 var refresh_config_cnt = 1;
 
-function refresh_config(first_run=false)
+function refresh_config()
 {
     // Immediately refresh config
     clearTimeout(refresh_config_timer);
     refresh_config_cnt = 1;
-    refresh_config_timer_cb(first_run);
+    refresh_config_timer_cb();
 }
 
-function refresh_config_timer_cb(first_run=false)
+function refresh_config_timer_cb()
 {
     // If time is not elapsed - reschedule timer in 1 sec
     refresh_config_cnt--;
@@ -220,7 +222,7 @@ function refresh_config_timer_cb(first_run=false)
         url: api_base + "config",
     }).done(function(data) {
         $('#no_device_present_modal').modal('hide');
-        on_config_loaded(data, first_run);
+        on_config_loaded(data);
     }).fail(function() {
         $('#no_device_present_modal').modal('show');
     }).always(function() {
@@ -239,7 +241,7 @@ $(document).ready(function() {
     // Show proper page by hashtag
     toggle_page();
     // Load config (this function will also schedule periodical config refresh)
-    refresh_config(true);
+    refresh_config();
 });
 
 // when user goes "back", i.e. on back button press

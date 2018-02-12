@@ -69,6 +69,22 @@
       </div>
     </div>
 
+    <!-- WiFi connection progress modal -->
+    <div class="modal fade" id="wifi_connection_progress" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="setup_strip_test_title">Connecting to <b id=wifi_connection_progress_name></b></h5>
+          </div>
+          <div class="modal-body">
+            <div class="progress">
+              <div id="wifi_connection_progress_pbar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 15%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Setup modals -->
     <div class="modal fade" id="setup_strip_test_modal" tabindex="-1" role="dialog" data-keyboard="false" aria-labelledby="setup_strip_test_title" aria-hidden="true">
       <div class="modal-dialog" role="document">

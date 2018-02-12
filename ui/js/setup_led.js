@@ -61,8 +61,12 @@ function setup_strip_run_test_click(e)
 $("#setup_strip_test_btn").click(setup_strip_test_click);
 $("#setup_strip_run_test_btn").click(setup_strip_run_test_click);
 
-function setup_led_strip_config_update(c)
+function setup_led_strip_config_update(c, same_page)
 {
+    // Don't update fields in case of LED config page active
+    if (same_page) {
+        return;
+    }
     // Led cnt
     $('#led_cnt').val(c["cnt"]);
     // Led type
