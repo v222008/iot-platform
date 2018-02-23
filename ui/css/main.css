@@ -17,3 +17,7 @@ body {
 .setup-header {
   margin-bottom: 1rem;
 }
+
+.pointer {
+    cursor: pointer;
+}

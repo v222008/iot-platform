@@ -177,15 +177,17 @@ function on_config_loaded(config)
 {
     var hash = window.location.hash;
     var sections = {};
+    var key2hash = {};
     for (var key in pages_map) {
         var page = pages_map[key];
         if ("config_section" in page) {
-            sections[page["config_section"]] = page["on_config_update"]
+            sections[page["config_section"]] = page["on_config_update"];
+            key2hash[page["config_section"]] = key;
         }
     }
     for (var key in config) {
         if (key in sections) {
-            sections[key](config[key], hash == key);
+            sections[key](config[key], hash == key2hash[key]);
         }
     }
 }
