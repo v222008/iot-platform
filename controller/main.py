@@ -70,6 +70,23 @@ class LedConfig():
         self.config.update(cfg)
 
 
+class MQTTConfig():
+    """ESP WiFi configuration for ESP8266 / ESP32"""
+
+    def __init__(self):
+        self.config = {'host': '', 'username': '', 'password': '', 'client_id': '',
+                       'status_topic': '', 'control_topic': ''}
+
+    def config_get(self):
+        return self.config
+
+    def config_replace(self, cfg):
+        self.config = cfg
+
+    def config_merge(self, cfg):
+        self.config.update(cfg)
+
+
 # Web Server
 web = tinyweb.server.webserver()
 
@@ -84,8 +101,10 @@ def index(req, resp):
 # --- main starts here ---
 wconfig = WifiConfig()
 lconfig = LedConfig()
+mconfig = MQTTConfig()
 config = Config([('wifi', wconfig),
-                 ('led', lconfig)])
+                 ('led', lconfig),
+                 ('mqtt', mconfig)])
 
 # Add RestAPI resources
 web.add_resource(LedTest, '/v1/test')

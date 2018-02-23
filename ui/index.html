@@ -218,6 +218,56 @@
       </div>
     </div> <!-- of WiFi setup -->
 
+    <!-- Setup MQTT page -->
+    <div class="container page" id="setup_mqtt">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="display-4 setup-header">MQTT</h1>
+
+        <form class="setup-header" action="config" method="PUT" id="setup-mqtt-form" role="form" parent-item="mqtt">
+          <div class="form-group">
+            <label for="mqtt_host">Connection details</label>
+            <input name=host class="form-control" id="mqtt_host" placeholder="Hostname (e.g. test.mosquitto.org)" required>
+          </div>
+          <div class="form-group">
+            <div class="form-row">
+              <div class="col">
+                <input name=username class="form-control" id="mqtt_username" placeholder="Username">
+              </div>
+              <div class="col">
+                <input name=password class="form-control" id="mqtt_password" placeholder="Password">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <input name=client_id class="form-control" id="mqtt_client_id" placeholder="ClientID (e.g. rbg_131233)">
+            <small class="form-text text-muted">This is optional. Leave it blank if not sure.</small>
+          </div>
+          <div class="form-group">
+            <label for="mqtt_status_topic">MQTT Status Topic</label>
+            <input name=status_topic class="form-control" id="mqtt_status_topic" placeholder="home/ledstrip" required>
+          </div>
+          <div class="form-group">
+            <label for="mqtt_control_topic">MQTT Control Topic</label>
+            <input name=control_topic class="form-control" id="mqtt_control_topic" placeholder="home/ledstrip/set" required>
+          </div>
+          <div class="form-check">
+            <input name=enabled class="form-check-input" type="checkbox" value="" id="mqtt_enabled">
+            <label class="form-check-label" for="setup_mqtt_enabled">Enabled</label>
+          </div>
+        </form>
+        <div class="setup-next">
+          <div class="row">
+            <div class="col-6">
+              <button id="setup_mqtt_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal">Test Connection</button>
+            </div>
+            <div class="col-6 text-right">
+              <a id="setup_mqtt_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#setup-mqtt-form" href="#setup_http">Next: HTTP</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- of MQTT setup -->
+
   </body>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -228,5 +278,7 @@
   <script src="js/main.js"></script>
   <script src="js/setup_led.js"></script>
   <script src="js/setup_wifi.js"></script>
+  <script src="js/setup_mqtt.js"></script>
+  <script src="js/forms.js"></script>
 
 </html>
