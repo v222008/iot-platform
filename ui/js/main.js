@@ -2,10 +2,6 @@
 // (C) Konstantin Belyalov 2017-2018
 // MIT license
 
-// 1 - common
-// 2 - setup
-// var mode = 2;
-
 var api_base = "http://localhost:8081/v1/";
 // var api_base = "/v1/";
 
@@ -78,7 +74,7 @@ function toggle_page()
 {
     var next = window.location.hash;
     if (next == "") {
-        next = "#setup_welcome";
+        next = "#welcome";
     }
     if (next.indexOf("#") == -1) {
         next = "#" + next;
@@ -108,6 +104,7 @@ function toggle_page()
     $(next).show();
 }
 
+var initial_config = true;
 function on_config_loaded(config)
 {
     var hash = window.location.hash;
@@ -123,9 +120,11 @@ function on_config_loaded(config)
     console.log(config, sections);
     for (var key in config) {
         if (key in sections) {
-            sections[key](config[key], hash == key2hash[key]);
+            var same_page = hash == key2hash[key];
+            sections[key](config[key], same_page && !initial_config);
         }
     }
+    initial_config = false;
 }
 
 var refresh_config_timer;

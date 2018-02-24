@@ -24,22 +24,22 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#setup_welcome">Welcome</a>
+            <a class="nav-link" href="#welcome">Welcome</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#setup_strip">LedStrip</a>
+            <a class="nav-link" href="#strip">LedStrip</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#setup_wifi">WiFi</a>
+            <a class="nav-link" href="#wifi">WiFi</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#setup_mqtt">MQTT</a>
+            <a class="nav-link" href="#mqtt">MQTT</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#setup_http">HTTP</a>
+            <a class="nav-link" href="#http">HTTP</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#setup_done">Done!</a>
+            <a class="nav-link" href="#done">Done!</a>
           </li>
         </ul>
       </div>
@@ -53,7 +53,7 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="setup_strip_test_title">Device is not responding</h5>
+            <h5 class="modal-title" id="strip_test_title">Device is not responding</h5>
           </div>
           <div class="modal-body">
             <p>Please make sure that:</p>
@@ -70,15 +70,15 @@
     </div>
 
     <!-- WiFi connection progress modal -->
-    <div class="modal fade" id="setup_wifi_conn_progress" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal fade" id="wifi_conn_progress" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Connecting to <b id=setup_wifi_conn_progress_name></b></h5>
+            <h5 class="modal-title">Connecting to <b id=wifi_conn_progress_name></b></h5>
           </div>
           <div class="modal-body">
             <div class="progress">
-              <div id="setup_wifi_conn_progress_pbar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+              <div id="wifi_conn_progress_pbar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
             </div>
           </div>
         </div>
@@ -86,32 +86,32 @@
     </div>
 
     <!-- WiFi password modal -->
-    <div class="modal fade" id="setup_wifi_password_modal" tabindex="-1" role="dialog" data-keyboard="false">
+    <div class="modal fade" id="wifi_password_modal" tabindex="-1" role="dialog" data-keyboard="false">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">The WiFi Network Requires a Password</h5>
           </div>
           <div class="modal-body">
-            <form id="setup-wifi-password-form" role="form">
-              <label for="setup_wifi_password">Password</label>
-              <input type="password" name=wifi_pwd class="form-control" id="setup_wifi_password" minlength=3 maxlength=5 required>
+            <form id="wifi-password-form" role="form">
+              <label for="wifi_password">Password</label>
+              <input type="password" name=wifi_pwd class="form-control" id="wifi_password" minlength=3 maxlength=5 required>
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="setup_wifi_password_connect_btn">Connect</button>
-            <button type="button" class="btn btn-secondary" id="setup_wifi_password_cancel_btn">Cancel</button>
+            <button type="button" class="btn btn-primary" id="wifi_password_connect_btn">Connect</button>
+            <button type="button" class="btn btn-secondary" id="wifi_password_cancel_btn">Cancel</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- LED strip setup modal -->
-    <div class="modal fade" id="setup_strip_test_modal" tabindex="-1" role="dialog" data-keyboard="false" aria-labelledby="setup_strip_test_title" aria-hidden="true">
+    <!-- LED strip test modal -->
+    <div class="modal fade" id="strip_test_modal" tabindex="-1" role="dialog" data-keyboard="false" aria-labelledby="strip_test_title" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="setup_strip_test_title">LED Strip Test</h5>
+            <h5 class="modal-title" id="strip_test_title">LED Strip Test</h5>
           </div>
           <div class="modal-body">
             <p class="lead">Make sure that you've connected it right:</p>
@@ -124,30 +124,30 @@
             <p>During this test your LED strip will light each color for 2 seconds.</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="setup_strip_run_test_btn">Run Test</button>
+            <button type="button" class="btn btn-primary" id="strip_run_test_btn">Run Test</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Setup welcome page -->
-    <div class="container page" id="setup_welcome">
+    <!-- Welcome page -->
+    <div class="container page" id="welcome">
       <div class="col-md-6 offset-md-3 jumbotron text-center">
         <h1 class="display-3">Welcome!</h1>
         <p class="lead"><b>WS2812B</b> WiFi Enabled Controller is ready to be configured!</p>
-        <div class="setup-next">
-          <a id="setup_welcome_btn" class="btn btn-lg btn-outline-primary" href="#setup_strip" role="button">Get Started</a>
+        <div class="welcome-next">
+          <a id="welcome_next_btn" class="btn btn-lg btn-outline-primary" href="#strip" role="button">Get Started</a>
         </div>
       </div>
     </div>
 
-    <!-- Setup led strip page -->
-    <div class="container page" id="setup_strip">
+    <!-- Led strip page -->
+    <div class="container page" id="strip">
       <div class="col-md-6 offset-md-3">
         <h1 class="display-4 setup-header">LED Strip</h1>
 
-        <form action="config" method="PUT" id="setup-led-form" role="form" parent-item="led">
+        <form action="config" method="PUT" id="led_form" role="form" parent-item="led">
           <div class="form-group">
             <label>What type of WS2812B you've connected?</label>
             <div class="btn-group btn-group-toggle d-flex" role="group" data-toggle="buttons">
@@ -174,23 +174,23 @@
         <div class="setup-next">
           <div class="row">
             <div class="col-6">
-              <button id="setup_strip_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal" data-target="#setup_strip_test_modal">Test me!</button>
+              <button id="strip_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal" data-target="#strip_test_modal">Test me!</button>
             </div>
             <div class="col-6 text-right">
-              <a id="setup_strip_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#setup-led-form" href="#setup_wifi">Next: WiFi</a>
+              <a id="strip_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#led_form" href="#wifi">Next: WiFi</a>
             </div>
           </div>
         </div>
       </div>
-    </div> <!-- of led strip setup -->
+    </div> <!-- of led strip page -->
 
-    <!-- Setup WiFi page -->
-    <div class="container page" id="setup_wifi">
+    <!-- WiFi page -->
+    <div class="container page" id="wifi">
       <div class="col-md-6 offset-md-3">
         <h1 class="display-4 setup-header">WiFi</h1>
         <p class="lead">Let's connect your device to WiFi Access Point</p>
         <div class="row">
-          <table class="table table-bordered table-hover" id=setup_wifi_ssids>
+          <table class="table table-bordered table-hover" id=wifi_ssids>
             <tbody>
             </tbody>
           </table>
@@ -200,30 +200,30 @@
             <summary>Details...</summary>
               <dl class="row">
                 <dt class="col-sm-2">MAC</dt>
-                <dd class="col-sm-10" id=setup_wifi_mac>11-22-33-44-55</dd>
+                <dd class="col-sm-10" id=wifi_mac>11-22-33-44-55</dd>
 
                 <dt class="col-sm-2">Mode</dt>
-                <dd class="col-sm-10" id=setup_wifi_mode>11g</dd>
+                <dd class="col-sm-10" id=wifi_mode>11g</dd>
               </dl>
           </details>
         </div>
         <div class="row setup-next">
           <div class="col-6">
-            <button id="setup_wifi_manual_btn" class="btn btn-lg btn-outline-secondary" role="button" data-toggle="modal" data-target="#">Manual Entry</button>
+            <button id="wifi_manual_btn" class="btn btn-lg btn-outline-secondary" role="button" data-toggle="modal" data-target="#">Manual Entry</button>
           </div>
           <div class="col-6 text-right">
-            <a id="setup_wifi_next_btn" class="btn btn-lg btn-outline-primary" role="button" href="#setup_mqtt">Next: MQTT</a>
+            <a id="wifi_next_btn" class="btn btn-lg btn-outline-primary" role="button" href="#mqtt">Next: MQTT</a>
           </div>
         </div>
       </div>
-    </div> <!-- of WiFi setup -->
+    </div> <!-- of WiFi page -->
 
-    <!-- Setup MQTT page -->
-    <div class="container page" id="setup_mqtt">
+    <!-- MQTT page -->
+    <div class="container page" id="mqtt">
       <div class="col-md-6 offset-md-3">
         <h1 class="display-4 setup-header">MQTT</h1>
 
-        <form class="setup-header" action="config" method="PUT" id="setup-mqtt-form" role="form" parent-item="mqtt">
+        <form class="setup-header" action="config" method="PUT" id="mqtt_form" role="form" parent-item="mqtt">
           <div class="form-group">
             <label for="mqtt_host">Connection details</label>
             <input name=host class="form-control" id="mqtt_host" placeholder="Hostname (e.g. test.mosquitto.org)" required>
@@ -252,21 +252,21 @@
           </div>
           <div class="form-check">
             <input name=enabled class="form-check-input" type="checkbox" value="" id="mqtt_enabled">
-            <label class="form-check-label" for="setup_mqtt_enabled">Enabled</label>
+            <label class="form-check-label" for="mqtt_enabled">Enabled</label>
           </div>
         </form>
         <div class="setup-next">
           <div class="row">
             <div class="col-6">
-              <button id="setup_mqtt_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal">Test Connection</button>
+              <button id="mqtt_test_btn" class="btn btn-lg btn-outline-success" role="button" data-toggle="modal">Test Connection</button>
             </div>
             <div class="col-6 text-right">
-              <a id="setup_mqtt_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#setup-mqtt-form" href="#setup_http">Next: HTTP</a>
+              <a id="mqtt_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#mqtt_form" href="#http">Next: HTTP</a>
             </div>
           </div>
         </div>
       </div>
-    </div> <!-- of MQTT setup -->
+    </div> <!-- of MQTT page -->
 
   </body>
 

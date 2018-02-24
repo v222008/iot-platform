@@ -2,18 +2,17 @@
 // (C) Konstantin Belyalov 2017-2018
 // MIT license
 
-// MQTT Setup
+// MQTT Page
 
-var setup_mqtt_form = "#setup-mqtt-form";
-var setup_mqtt_config = null;
+var mqtt_config = null;
 
-function setup_mqtt_config_update(c, same_page)
+function mqtt_config_update(c, same_page)
 {
     // Don't update fields in case of config page active
-    if (same_page && setup_mqtt_config != null) {
+    if (same_page && mqtt_config != null) {
         return;
     }
-    setup_mqtt_config = c;
+    mqtt_config = c;
     $('#mqtt_host').val(c['host']);
     $('#mqtt_username').val(c['username']);
     $('#mqtt_password').val(c['password']);
@@ -23,7 +22,7 @@ function setup_mqtt_config_update(c, same_page)
     $('#mqtt_enabled').prop('checked', c['enabled']);
 }
 
-$('#setup_mqtt_next_btn').click(function(e) {
+$('#mqtt_next_btn').click(function(e) {
     // If not enabled - do not validate / submit config
     if (!$('#mqtt_enabled').prop('checked')) {
         e.stopImmediatePropagation();
@@ -31,5 +30,5 @@ $('#setup_mqtt_next_btn').click(function(e) {
     }
 });
 
-pages_map['#setup_mqtt'] = {config_section: "mqtt",
-                            on_config_update: setup_mqtt_config_update};
+pages_map['#mqtt'] = {config_section: "mqtt",
+                      on_config_update: mqtt_config_update};
