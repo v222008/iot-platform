@@ -239,7 +239,7 @@
                 <input name=username class="form-control" id="mqtt_username" placeholder="Username">
               </div>
               <div class="col">
-                <input name=password class="form-control" id="mqtt_password" placeholder="Password">
+                <input name=password class="form-control" id="mqtt_password" type="password" placeholder="Password">
               </div>
             </div>
           </div>
@@ -277,6 +277,37 @@
       </div>
     </div> <!-- of MQTT page -->
 
+    <!-- HTTP page -->
+    <div class="container page" id="http">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="display-4 setup-header">HTTP</h1>
+        <p>Access Control</p>
+        <form class="setup-header" action="config" method="PUT" id="http_form" role="form" parent-item="http">
+          <div class="form-group">
+            <div class="form-row">
+              <div class="col">
+                <input name=username class="form-control" id="http_username" placeholder="Username">
+              </div>
+              <div class="col">
+                <input name=password class="form-control" id="http_password" type="password" placeholder="Password">
+              </div>
+            </div>
+          </div>
+          <div class="form-check">
+            <input name=enabled class="form-check-input" type="checkbox" value="" id="http_enabled">
+            <label class="form-check-label" for="http_enabled">Enabled</label>
+          </div>
+        </form>
+        <div class="setup-next">
+          <div class="row">
+            <div class="offset-6 col-6 text-right">
+              <a id="http_next_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#http_form" href="#done">Next: Done</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- of MQTT page -->
+
   </body>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -288,6 +319,7 @@
   <script src="js/setup_led.js"></script>
   <script src="js/setup_wifi.js"></script>
   <script src="js/setup_mqtt.js"></script>
+  <script src="js/setup_http.js"></script>
   <script src="js/setup_forms.js"></script>
 
 </html>
