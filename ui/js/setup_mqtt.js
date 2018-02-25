@@ -19,6 +19,7 @@ function mqtt_config_update(c, same_page)
     $('#mqtt_client_id').val(c['client_id']);
     $('#mqtt_status_topic').val(c['status_topic']);
     $('#mqtt_control_topic').val(c['control_topic']);
+    $('#mqtt_light_status_topic').val(c['light_status_topic']);
     $('#mqtt_enabled').prop('checked', c['enabled']);
 }
 
