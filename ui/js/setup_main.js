@@ -7,6 +7,8 @@ var api_base = "http://localhost:8081/v1/";
 
 var pages_map = {};
 
+var current_config = null;
+
 // Python line string format function, e.g.:
 // "{0} is dead, but {1} is alive! {0} {2}".format("ASP", "ASP.NET")
 // taken from https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
@@ -104,12 +106,15 @@ function toggle_page()
     $(next).show();
 }
 
-var initial_config = true;
 function on_config_loaded(config)
 {
     var hash = window.location.hash;
     var sections = {};
     var key2hash = {};
+    var first_run = (current_config == null);
+
+    current_config = config;
+
     for (var key in pages_map) {
         var page = pages_map[key];
         if ("config_section" in page) {
@@ -120,11 +125,10 @@ function on_config_loaded(config)
     console.log(config, sections);
     for (var key in config) {
         if (key in sections) {
-            var same_page = hash == key2hash[key];
-            sections[key](config[key], same_page && !initial_config);
+            var same_page = (hash == key2hash[key]);
+            sections[key](config[key], same_page && !first_run);
         }
     }
-    initial_config = false;
 }
 
 var refresh_config_timer;

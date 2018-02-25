@@ -108,10 +108,15 @@ web = tinyweb.server.webserver()
 
 
 # Index page - basically archive of all files :)
-@web.route('/')
+@web.route('/setup')
 def index(req, resp):
     resp.add_header('Content-Encoding', 'gzip')
-    yield from resp.send_file('index_all.html.gz', content_type='text/html')
+    yield from resp.send_file('setup_all.html.gz', content_type='text/html')
+
+
+@web.route('/v1/done_config')
+def done_config(req, resp):
+    yield from resp.redirect('/dashboard')
 
 
 # --- main starts here ---

@@ -308,6 +308,39 @@
       </div>
     </div> <!-- of MQTT page -->
 
+    <!-- Done page -->
+    <div class="container page" id="done">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="display-4 setup-header text-center">You're All Set!</h1>
+        <p>Your Device has been configured successfully. Here are some important information:</p>
+        <table class="table table-bordered table-hover" id=wifi_ssiddddd>
+          <tbody>
+            <tr>
+              <td>Connected AP</td>
+              <td class="bold" id="done_connected">...</td>
+            </tr>
+            <tr>
+              <td>IP</td>
+              <td class="bold" id="done_ip">...</td>
+            </tr>
+            <tr>
+              <td>Control via HTTP</td>
+              <td class="bold" id="done_http">...</td>
+            </tr>
+            <tr>
+              <td>Control / Events via MQTT</td>
+              <td class="bold" id="done_mqtt">...</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="setup-next">
+          <div class="text-center">
+            <a id="done_finish_btn" class="btn btn-lg btn-outline-primary" role="button" href="#">Done Setup</a>
+          </div>
+        </div>
+      </div>
+    </div> <!-- of MQTT page -->
+
   </body>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -320,6 +353,7 @@
   <script src="js/setup_wifi.js"></script>
   <script src="js/setup_mqtt.js"></script>
   <script src="js/setup_http.js"></script>
+  <script src="js/setup_done.js"></script>
   <script src="js/setup_forms.js"></script>
 
 </html>
