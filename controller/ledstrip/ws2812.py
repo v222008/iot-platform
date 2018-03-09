@@ -46,10 +46,10 @@ class LedStrip():
         # Cross check parameters
         for key in tmp.keys():
             if key not in self.defaults:
-                raise Exception('Unknown parameter "{}"'.format(key))
+                raise ValueError('Unknown parameter "{}"'.format(key))
         for key in self.defaults.keys():
             if key not in tmp:
-                raise Exception('Parameter "{}" is required'.format(key))
+                raise ValueError('Parameter "{}" is required'.format(key))
         # Re-initialize LED strip
         self.initialize(**tmp)
         # All ok, save config
@@ -66,14 +66,14 @@ class LedStrip():
 
     def initialize(self, type, cnt):
         if cnt is None:
-            raise Exception('Value for "cnt" is required')
+            raise ValueError('Value for "cnt" is required')
         if type is None:
-            raise Exception('Value for "type" is required')
+            raise ValueError('Value for "type" is required')
         if type not in led_types:
-            raise Exception('Unknow LED type "{}".'.format(type))
+            raise ValueError('Unknow LED type "{}".'.format(type))
         cnt = int(cnt)
         if cnt > max_leds or cnt < 1:
-            raise Exception('Value for "cnt" out of valid range [1-{}]'.format(max_leds))
+            raise ValueError('Value for "cnt" out of valid range [1-{}]'.format(max_leds))
         self.type = type
         self.cnt = cnt
         self.color_cnt = led_types[type]

@@ -4,7 +4,7 @@ MIT license
 """
 
 
-class MQTTConfig():
+class MQTT():
     """MQTT Configuration"""
 
     def __init__(self):
@@ -21,11 +21,27 @@ class MQTTConfig():
         self.config.update(cfg)
 
 
-class HTTPConfig():
-    """ESP WiFi configuration for ESP8266 / ESP32"""
+class HTTP():
+    """HTTP configuration, like username / password, endpoints, etc"""
 
     def __init__(self):
         self.config = {'username': '', 'password': '', 'enabled': False}
+
+    def config_get(self):
+        return self.config
+
+    def config_replace(self, cfg):
+        self.config = cfg
+
+    def config_merge(self, cfg):
+        self.config.update(cfg)
+
+
+class Misc():
+    """All other, non categorized params"""
+
+    def __init__(self):
+        self.config = {'configured': False}
 
     def config_get(self):
         return self.config

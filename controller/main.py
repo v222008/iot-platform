@@ -12,7 +12,7 @@ import tinyweb
 import machine
 from ledstrip.ws2812 import LedStrip
 import http
-from config import HTTPConfig, MQTTConfig
+import config
 from utils.wifi import WifiConfig
 from utils.config import Config
 
@@ -21,37 +21,47 @@ from utils.config import Config
 led_pin = 4
 led_strip = LedStrip(machine.Pin(led_pin))
 
+# Config parts
+wifi_config = WifiConfig()
+mqtt_config = config.MQTT()
+http_config = config.HTTP()
+misc_config = config.Misc()
+
+# Joined config
+all_config = Config([('wifi', wifi_config),
+                     ('led', led_strip),
+                     ('mqtt', mqtt_config),
+                     ('http', http_config),
+                     ('misc', misc_config)])
 
 # Create Web Server
 web = tinyweb.server.webserver()
 
 
-# Index page - basically archive of all files :)
+# Index page - redirector to setup / dashboard
+@web.route('/')
+def page_index(req, resp):
+    if misc_config['configured']:
+        yield from resp.redirect('/dashboard')
+    else:
+        yield from resp.redirect('/setup')
+
+
 @web.route('/setup')
-def index(req, resp):
+def page_setup(req, resp):
     resp.add_header('Content-Encoding', 'gzip')
     yield from resp.send_file('setup_all.html.gz', content_type='text/html')
 
 
-# Setup DONE page
-@web.route('/v1/done_config')
-def done_config(req, resp):
-    yield from resp.redirect('/dashboard')
+@web.route('/dashboard')
+def page_dashboard(req, resp):
+    resp.add_header('Content-Encoding', 'gzip')
+    yield from resp.send_file('dashboard_all.html.gz', content_type='text/html')
 
 
 def start():
     """Main function - entry point"""
     print("Starting RBG LED Controller...")
-
-    wifi_config = WifiConfig()
-    mqtt_config = MQTTConfig()
-    http_config = HTTPConfig()
-
-    # Joined config
-    all_config = Config([('wifi', wifi_config),
-                         ('led', led_strip),
-                         ('mqtt', mqtt_config),
-                         ('http', http_config)])
 
     # Add RestAPI resources
     web.add_resource(http.LedStrip(led_strip), '/v1/ledstrip/on')
