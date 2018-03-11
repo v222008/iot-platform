@@ -12,6 +12,7 @@ import tinyweb
 import machine
 import http
 import config
+import setup
 from utils.wifi import WifiConfig
 from utils.config import Config
 
@@ -101,6 +102,9 @@ def start():
     web.add_resource(http.LedStripTest(led_strip), '/v1/ledstrip/test')
     web.add_resource(all_config, '/v1/config')
     web.add_resource(wifi_config, '/v1/wifi/scan')
+
+    # Set up setup button task
+    setup.start(misc_config)
 
     # Run HTTP Server on 80 port for real devices.
     # Otherwiese use 8081 port
