@@ -2,8 +2,7 @@
 // (C) Konstantin Belyalov 2017-2018
 // MIT license
 
-var api_base = "http://localhost:8081/v1/";
-// var api_base = "/v1/";
+var api_base = "/v1/";
 
 var pages_map = {};
 
@@ -129,6 +128,11 @@ function on_config_loaded(config)
             sections[key](config[key], same_page && !first_run);
         }
     }
+    // update title / welcome page device name and then show document
+    if (first_run) {
+        document.title = config['misc']['device'];
+        $('#welcome_device_name span').html(document.title);
+    }
 }
 
 var refresh_config_timer;
@@ -170,6 +174,7 @@ function refresh_config_timer_cb()
         $("#no_device_refresh_btn").prop('disabled', false);
         $("#no_device_refresh_btn").html("Retry in {0} sec".format(refresh_config_cnt));
         setTimeout(refresh_config_timer_cb, 1000);
+        $('body:hidden').show();
     });
 }
 
@@ -179,10 +184,10 @@ $("#no_device_refresh_btn").click(refresh_config);
 // main function when document is ready
 $(document).ready(function() {
     console.log("Ready, start from", window.location.hash);
-    // Show proper page by hashtag
-    toggle_page();
     // Load config (this function will also schedule periodical config refresh)
     refresh_config();
+    // Show proper page by hashtag
+    toggle_page();
 });
 
 // when user goes "back", i.e. on back button press

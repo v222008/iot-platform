@@ -28,10 +28,10 @@ class LedStripTest():
     def post(self, data):
         # In case of just test strip
         try:
-            self.strip.test(**data)
+            self.strip.test(data)
             return {'message': 'success'}
         except Exception as e:
             return {'message': str(e)}, 400
 
     def put(self, data):
-        self.post(data)
+        return self.post(data)

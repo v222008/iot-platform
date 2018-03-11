@@ -6,7 +6,6 @@
 
 function done_config_update(c)
 {
-    console.log('done activate');
     if (current_config['wifi']['connected']) {
         var c = current_config['wifi'];
         $('#done_connected').html(c['ssid']);
@@ -19,9 +18,5 @@ function done_config_update(c)
     $('#done_mqtt').html(current_config['mqtt']['enabled'] ? 'Enabled' : 'Disabled');
 }
 
-$('#done_finish_btn').click(function(e) {
-    window.location = api_base + 'done_config';
-});
-
-pages_map['#done'] = {config_section: "wifi",
+pages_map['#done'] = {config_section: "misc",
                       on_config_update: done_config_update};

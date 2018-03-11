@@ -6,7 +6,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>NeoPixel LED Controller Setup</title>
+    <title>Setup</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -22,7 +22,7 @@
   <body>
 
     <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
-      <a class="navbar-brand" href="#"><i class="far fa-lightbulb"></i> NeoPixel</a>
+      <a class="navbar-brand" href="#"><i class="far fa-lightbulb"></i> LED Strip</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -140,7 +140,7 @@
     <div class="container page" id="welcome">
       <div class="col-md-6 offset-md-3 jumbotron text-center">
         <h1 class="display-3">Welcome!</h1>
-        <p class="lead"><b>Neopixel</b> LED Strip Controller is ready to be configured!</p>
+        <p class="lead" id="welcome_device_name"><span>Neopixel LED Strip Controller</span> is ready to be configured!</p>
         <div class="welcome-next">
           <a id="welcome_next_btn" class="btn btn-lg btn-outline-primary" href="#strip" role="button">Get Started</a>
         </div>
@@ -157,7 +157,7 @@
             <label>What type of Neopixel Led Strip connected?</label>
             <div class="btn-group btn-group-toggle d-flex" role="group" data-toggle="buttons">
               <label class="btn btn-secondary w-100 active" id="led_type_rgb">
-                <input type="radio" name="type" value="rgb" checked>RGB
+                <input type="radio" name="type" value="rgb" required>RGB
               </label>
               <label class="btn btn-secondary w-100" id="led_type_rgbw">
                 <input type="radio" name="type" value="rgbw">RGBW
@@ -333,9 +333,12 @@
             </tr>
           </tbody>
         </table>
+        <form action="config" method="PUT" id="done_form" role="form" parent-item="misc">
+          <input type="hidden" name="configured" value="1">
+        </form>
         <div class="setup-next">
           <div class="text-center">
-            <a id="done_finish_btn" class="btn btn-lg btn-outline-primary" role="button" href="#">Done Setup</a>
+            <a id="done_finish_btn" class="btn btn-lg btn-outline-primary" role="button" validate-n-submit="#done_form" href="/">Done Setup</a>
           </div>
         </div>
       </div>

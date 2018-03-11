@@ -84,11 +84,13 @@ class LedStrip():
         self.cnt = None
         self.buf = None
 
-    def test(self, type, cnt):
+    def test(self, params):
+        if 'type' not in params or 'cnt' not in params:
+            raise ValueError('"type" and "cnt" parameters are required')
         old_type = self.type
         old_cnt = self.cnt
         try:
-            self.initialize(type, cnt)
+            self.initialize(params['type'], params['cnt'])
             # Test all colors by enabling pixel by pixel
             for c in range(self.color_cnt):
                 for i in range(self.cnt):

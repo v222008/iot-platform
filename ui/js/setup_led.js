@@ -29,7 +29,7 @@ function strip_run_test_click(e)
     // For just TEST strip we don't want to save parameters
     // Instead, we just pass them to test restapi method
     var btn = this;
-    var uri = api_base + 'test';
+    var uri = api_base + 'ledstrip/test';
     var jdata = $('#led_form').serializeFormJSON();
     // Hide any ajax errors
     bootstrap_alert.ajax_clean();
@@ -37,7 +37,7 @@ function strip_run_test_click(e)
     strip_modal_enabled(false);
     $.ajax({
         url: uri,
-        type : 'PUT',
+        type : 'POST',
         contentType: 'application/json',
         data : JSON.stringify(jdata),
         success : function(result) {

@@ -41,13 +41,23 @@ class Misc():
     """All other, non categorized params"""
 
     def __init__(self):
-        self.config = {'configured': False}
+        self.config = {'device': 'Unknown', 'configured': False}
+
+    def configured(self):
+        return self.config['configured']
 
     def config_get(self):
         return self.config
 
+    def config_apply(self, cfg, merge=True):
+        if merge:
+            self.config.update(cfg)
+        else:
+            self.config = cfg
+        self.config['configured'] = int(self.config['configured'])
+
     def config_replace(self, cfg):
-        self.config = cfg
+        self.config_apply(cfg, False)
 
     def config_merge(self, cfg):
-        self.config.update(cfg)
+        self.config_apply(cfg)

@@ -138,7 +138,7 @@ function wifi_scan()
         // Update button for active ssid
         wifi_config_updated(wifi_config, true);
         // re-schedule update in 5 secs
-        wifi_scan_timer = setTimeout(wifi_scan, 5000);
+        wifi_scan_timer = setTimeout(wifi_scan, 10000);
     });
 }
 
