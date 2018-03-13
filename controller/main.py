@@ -13,40 +13,48 @@ import machine
 import http
 import config
 import setup
-from utils.wifi import WifiConfig
-from utils.config import Config
+import statusled
+import utils
+import utils.config
+import micropython
 
 
-# Config parts
-wifi_config = WifiConfig()
-mqtt_config = config.MQTT()
-http_config = config.HTTP()
-misc_config = config.Misc()
+# Setup button PIN, if present on device
+setup_button = None
+status_led_pin = None
 
 # Deterimine run / device type
 if machine.unique_id() == b'__unix__':
+    # Emulatator mode. Emulate WS2812 device
     emulator = True
-    # Emulate ws2812 device
     from ledstrip.ws2812 import LedStrip
     led_strip = LedStrip(machine.Pin(4))
     device_name = 'Emulator For Neopixel Controller'
 else:
     emulator = False
+    # Allocate memory for ISR possible exception
+    micropython.alloc_emergency_exception_buf(100)
     # Test for ws2812 like devices
     test_pin = machine.Pin(4, machine.Pin.IN)
     if test_pin.value() == 1:
+        # WS2812 LED Controller Device
         from ledstrip.ws2812 import LedStrip
-        led_strip = LedStrip(machine.Pin(4))
         device_name = 'Neopixel LED Strip Controller'
+        led_strip = LedStrip(machine.Pin(4))
+        setup_button = machine.Pin(5)
+        status_led_pin = machine.Pin(10)
     else:
-        print('Unknown device')
+        from ledstrip.ws2812 import LedStrip
+        device_name = 'Neopixel LED Strip Controller'
+        led_strip = LedStrip(machine.Pin(4))
+        # device_name = 'Unknown device'
 
-# Joined config
-all_config = Config([('wifi', wifi_config),
-                     ('led', led_strip),
-                     ('mqtt', mqtt_config),
-                     ('http', http_config),
-                     ('misc', misc_config)])
+# Configuration
+config = utils.Config([config.Misc(device_name),
+                       utils.config.Wifi(),
+                       config.Mqtt(),
+                       config.Http(),
+                       ('led', led_strip)])
 
 # Create Web Server / device routes
 web = tinyweb.server.webserver()
@@ -56,12 +64,12 @@ web = tinyweb.server.webserver()
 def page_index(req, resp):
     """Index page - basically redirector to setup / dashboard"""
     if emulator:
-        if misc_config.configured():
+        if config.misc.configured():
             yield from resp.redirect('/ui/dashboard.html')
         else:
             yield from resp.redirect('/ui/setup.html')
     else:
-        if misc_config.configured():
+        if config.misc.configured():
             yield from resp.redirect('/dashboard')
         else:
             yield from resp.redirect('/setup')
@@ -70,15 +78,18 @@ def page_index(req, resp):
 @web.route('/setup')
 def page_setup(req, resp):
     """Setup page. Send everything packed and gzipped at once."""
-    yield from resp.send_file('setup_all.html.gz', content_encoding='gzip',
-                                                   content_type='text/html')
+    yield from resp.send_file('setup_all.html.gz',
+                              content_encoding='gzip',
+                              content_type='text/html')
 
 
 @web.route('/dashboard')
 def page_dashboard(req, resp):
     """Dashboard page. The same idea as for setup page"""
-    yield from resp.send_file('dashboard_all.html.gz', content_encoding='gzip',
-                                                       content_type='text/html')
+    yield from resp.send_file('dashboard_all.html.gz',
+                              content_encoding='gzip',
+                              content_type='text/html')
+
 
 # Emulator routes
 @web.route('/ui/<fn>')
@@ -92,19 +103,17 @@ def page_emulator(req, resp, fn):
 
 def start():
     """Main function - entry point"""
-    print("Starting LED Controller...")
-
-    # Set device name
-    all_config.update({'misc': {'device': device_name}})
-
+    print("Starting {}...".format(device_name))
     # Add RestAPI resources
     web.add_resource(http.LedStrip(led_strip), '/v1/ledstrip/on')
     web.add_resource(http.LedStripTest(led_strip), '/v1/ledstrip/test')
-    web.add_resource(all_config, '/v1/config')
-    web.add_resource(wifi_config, '/v1/wifi/scan')
-
-    # Set up setup button task
-    setup.start(misc_config)
+    web.add_resource(config, '/v1/config')
+    web.add_resource(config.wifi, '/v1/wifi/scan')
+    # Start setup routine
+    setup.start(config, setup_button)
+    # Start status LED routine, if board has it
+    if status_led_pin:
+        statusled.start(config, status_led_pin)
 
     # Run HTTP Server on 80 port for real devices.
     # Otherwiese use 8081 port

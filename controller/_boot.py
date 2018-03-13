@@ -6,7 +6,6 @@ MIT license
 import gc
 import uos
 import flashbdev
-import main
 
 
 print("Booting...")
@@ -19,4 +18,6 @@ if flashbdev.bdev:
 gc.collect()
 
 # Run RGB controller
+import main
+
 main.start()

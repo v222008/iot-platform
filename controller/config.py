@@ -4,7 +4,7 @@ MIT license
 """
 
 
-class MQTT():
+class Mqtt():
     """MQTT Configuration"""
 
     def __init__(self):
@@ -21,7 +21,7 @@ class MQTT():
         self.config.update(cfg)
 
 
-class HTTP():
+class Http():
     """HTTP configuration, like username / password, endpoints, etc"""
 
     def __init__(self):
@@ -40,8 +40,8 @@ class HTTP():
 class Misc():
     """All other, non categorized params"""
 
-    def __init__(self):
-        self.config = {'device': 'Unknown', 'configured': False}
+    def __init__(self, device='Unknown'):
+        self.config = {'device': device, 'configured': False}
 
     def configured(self):
         return self.config['configured']
