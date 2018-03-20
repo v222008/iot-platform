@@ -8,8 +8,9 @@ MIT license
 (C) Konstantin Belyalov 2017-2018
 """
 
-import tinyweb
 import machine
+import sys
+import tinyweb
 import http
 import config
 import setup
@@ -24,10 +25,10 @@ setup_button = None
 status_led_pin = None
 
 # Deterimine run / device type
-if machine.unique_id() == b'__unix__':
-    # Emulatator mode. Emulate WS2812 device
+if sys.platform == 'linux' or sys.platform == 'darwin':
+    # Emulatator mode. Emulate neopixel device
     emulator = True
-    from ledstrip.ws2812 import LedStrip
+    from ledstrip.neopixel import LedStrip
     led_strip = LedStrip(machine.Pin(4))
     device_name = 'Emulator For Neopixel Controller'
 else:
@@ -38,13 +39,13 @@ else:
     test_pin = machine.Pin(4, machine.Pin.IN)
     if test_pin.value() == 1:
         # WS2812 LED Controller Device
-        from ledstrip.ws2812 import LedStrip
+        from ledstrip.neopixel import LedStrip
         device_name = 'Neopixel LED Strip Controller'
         led_strip = LedStrip(machine.Pin(4))
         setup_button = machine.Pin(5)
         status_led_pin = machine.Pin(10)
     else:
-        from ledstrip.ws2812 import LedStrip
+        from ledstrip.neopixel import LedStrip
         device_name = 'Neopixel LED Strip Controller'
         led_strip = LedStrip(machine.Pin(4))
         # device_name = 'Unknown device'
