@@ -15,6 +15,7 @@ final_firmware_fn = 'rgb-controller-esp8266.bin'
 
 # mkdir -p
 def mkdir_p(path):
+    print('[MKDIR]', path)
     try:
         os.makedirs(path)
     except OSError as exc:
@@ -24,10 +25,17 @@ def mkdir_p(path):
             raise
 
 
+def run(cmd):
+    print('[RUN]', cmd)
+    ret = os.system(cmd)
+    if ret != 0:
+        raise SystemExit('Failed to execute shell command.')
+
+
 def vfat_add_files(fn, src, dst_path='/'):
     """Adds files to VFAT filesystem"""
     fn = os.path.join(build_dir, fn)
-    os.system('MTOOLS_SKIP_CHECK=1 mcopy -s -i %s %s ::%s' % (fn, src, dst_path))
+    run('MTOOLS_SKIP_CHECK=1 mcopy -s -i %s %s ::%s' % (fn, src, dst_path))
 
 
 def create_web_archive(infile, outfile, path='ui'):
@@ -55,7 +63,7 @@ def create_web_archive(infile, outfile, path='ui'):
                         fout.write(bottom)
                 else:
                     fout.write(line)
-    os.system('gzip -f --best --no-name %s' % os.path.join(build_dir, outfile))
+    run('gzip -f --best --no-name %s' % os.path.join(build_dir, outfile))
 
 
 if __name__ == '__main__':
@@ -68,9 +76,11 @@ if __name__ == '__main__':
     # shutil.rmtree(build_dir, ignore_errors=True)
     mkdir_p(os.path.join(build_dir, 'modules'))
     # Copy deps
-    os.system('cp -r deps/tinyweb/tinyweb/ {}/modules/tinyweb'.format(build_dir))
-    os.system('cp -r deps/micropython-esp-utils/utils/ {}/modules/utils'.format(build_dir))
-    os.system('cp -r controller/ {}/modules'.format(build_dir))
+    run('cp -rf deps/micropython-lib/uasyncio/uasyncio/ {}/modules/uasyncio'.format(build_dir))
+    run('cp -f deps/micropython-lib/uasyncio.core/uasyncio/core.py {}/modules/uasyncio/'.format(build_dir))
+    run('cp -rf deps/tinyweb/tinyweb/ {}/modules/tinyweb'.format(build_dir))
+    run('cp -rf deps/micropython-esp-utils/utils/ {}/modules/utils'.format(build_dir))
+    run('cp -rf controller/ {}/modules'.format(build_dir))
     # Create one page web archives
     create_web_archive('setup.html', 'setup_all.html.gz')
     create_web_archive('dashboard.html', 'dashboard_all.html.gz')
@@ -79,12 +89,12 @@ if __name__ == '__main__':
     vfat_add_files(fs_fn, os.path.join(build_dir, 'setup_all.html.gz'))
     vfat_add_files(fs_fn, os.path.join(build_dir, 'dashboard_all.html.gz'))
     # Compile micropython
-    os.system('docker run --rm \
-                    -v`pwd`/deps/micropython:/micropython \
-                    -v`pwd`/{}/modules:/micropython/ports/esp8266/modules \
-                    -v`pwd`/{}/firmware:/micropython/ports/esp8266/build \
-                    arsenicus/esp-open-sdk \
-                    /bin/bash -c ". ~/.bashrc && cd /micropython/ports/esp8266 && make"'.format(build_dir, build_dir))
+    run('docker run --rm '
+        '-v`pwd`/deps/micropython:/micropython '
+        '-v`pwd`/{}/modules:/micropython/ports/esp8266/modules '
+        '-v`pwd`/{}/firmware:/micropython/ports/esp8266/build '
+        'arsenicus/esp-open-sdk '
+        '/bin/bash -c ". ~/.bashrc && cd /micropython/ports/esp8266 && make"'.format(build_dir, build_dir))
     # Add filesystem to the firmware
     with open(os.path.join(build_dir, 'firmware', 'firmware-combined.bin'), 'rb') as f:
         firmware = f.read()
