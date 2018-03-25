@@ -8,7 +8,7 @@ RGB / RGBW controller for NeoPixel LEDs like:
 MIT license
 (C) Konstantin Belyalov 2017-2018
 """
-import time
+import utime as time
 import esp
 import uasyncio as asyncio
 

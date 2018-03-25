@@ -1,6 +1,6 @@
 [submodule "deps/micropython-lib"]
 	path = deps/micropython-lib
-	url = https://github.com/micropython/micropython-lib.git
+	url = https://github.com/belyalov/micropython-lib.git
 [submodule "deps/micropython"]
 	path = deps/micropython
 	url = https://github.com/micropython/micropython.git
