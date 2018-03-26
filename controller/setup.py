@@ -5,8 +5,8 @@ MIT license
 import machine
 import network
 import uasyncio as asyncio
-import ubinascii
-import time
+import utime as time
+import utils.dns
 
 
 # Setup button indicators
@@ -35,11 +35,9 @@ def __handler(config):
     # Turn on AP if device went into unconfigured mode
     # or user has pressed setup button
     if not config.misc.configured() and not ap_activated:
-        essid = b'LedController-%s' % ubinascii.hexlify(ap_if.config("mac")[-2:])
+        print('Unconfigured system, enabling WiFi AP')
         ap_if.active(True)
-        ap_if.config(essid=essid, authmode=network.AUTH_WPA_WPA2_PSK, password=b'ledledled')
         ap_activated = True
-        print('Unconfigured system, WiFi AP enabled')
     # Turn off AP when device has been successfully configured
     if config.misc.configured() and ap_if.active():
         ap_if.active(False)

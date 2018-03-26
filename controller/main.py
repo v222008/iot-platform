@@ -63,7 +63,7 @@ web = tinyweb.server.webserver()
 
 @web.route('/')
 def page_index(req, resp):
-    """Index page - basically redirector to setup / dashboard"""
+    """Index page - basically redirector to proper place"""
     if emulator:
         if config.misc.configured():
             yield from resp.redirect('/ui/dashboard.html')
@@ -110,18 +110,23 @@ def start():
     web.add_resource(http.LedStripTest(led_strip), '/v1/ledstrip/test')
     web.add_resource(config, '/v1/config')
     web.add_resource(config.wifi, '/v1/wifi/scan')
+
     # Start setup routine
     setup.start(config, setup_button)
+
     # Start status LED routine, if board has it
     if status_led_pin:
         statusled.start(config, status_led_pin)
 
-    # Run HTTP Server on 80 port for real devices.
-    # Otherwiese use 8081 port
+    # Start HTTP / DNS servers
     if not emulator:
+        dns = utils.dns.Server(resolve_to='192.168.168.1')
+        dns.run(host='0.0.0.0', port=53)
         web.run(host='0.0.0.0', port=80)
     else:
-        web.run(host='0.0.0.0', port=8081)
+        dns = utils.dns.Server(resolve_to='127.0.0.1')
+        dns.run(host='0.0.0.0', port=5353)
+        web.run(host='0.0.0.0', port=8080)
 
 
 if __name__ == '__main__':
