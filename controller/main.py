@@ -76,6 +76,13 @@ def page_index(req, resp):
             yield from resp.redirect('/setup')
 
 
+@web.route('/generate_204')
+@web.route('/hotspot-detect.html')
+@web.route('/library/test/success.html')
+def page_captive_portal(req, resp):
+    yield from resp.redirect('/setup', 'Redirecting...\n<script type="text/javascript">\nwindow.location = "/setup";\n</script>')
+
+
 @web.route('/setup')
 def page_setup(req, resp):
     """Setup page. Send everything packed and gzipped at once."""
