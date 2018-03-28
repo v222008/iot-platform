@@ -121,7 +121,6 @@ function on_config_loaded(config)
             key2hash[page["config_section"]] = key;
         }
     }
-    console.log(config, sections);
     for (var key in config) {
         if (key in sections) {
             var same_page = (hash == key2hash[key]);

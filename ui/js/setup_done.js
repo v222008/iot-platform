@@ -6,7 +6,6 @@
 
 function done_config_update(c)
 {
-    console.log(document.location);
     if (current_config['wifi']['connected']) {
         var c = current_config['wifi'];
         $('#done_connected').html(c['ssid']);

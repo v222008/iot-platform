@@ -117,24 +117,26 @@ function wifi_scan()
     // Scan for available WiFi Networks
     console.log('scan');
     $.getJSON(api_base + 'wifi/scan', function(data) {
-        var aps = data["access-points"]
+        var aps = data['access-points']
         // we don't want to override old entries, just update / add new
         for (var i in aps) {
             var ap = aps[i];
-            wifi_ssids[ap["ssid"]] = ap
+            wifi_ssids[ap['ssid']] = ap
         }
         // create table rows
         var res = "";
         for (var i in wifi_ssids) {
             var ap = wifi_ssids[i]
-            res += '<tr><th scope="row">{0}</th><td>{1}</td><td>{2}</td>'.format(ap["ssid"], ap["auth"], ap["quality"]);
+            res += '<tr><th scope="row">{0}</th><td>{1}</td><td>{2}%</td>'.format(ap["ssid"],
+                    ap["auth"], ap["quality"]);
             res += '<td class="text-center">';
-            res += '<button class="btn btn-sm btn-outline-primary" ssid="{0}" auth="{1}">Connect</button>'.format(ap["ssid"], ap["auth_raw"]);
+            res += '<button class="btn btn-sm btn-outline-primary" ssid="{0}" auth="{1}">Connect</button>'.format(ap["ssid"],
+                    ap["auth_raw"]);
             res += '</td></tr>';
         }
-        $("#wifi_ssids tbody").html(res);
+        $('#wifi_ssids tbody').html(res);
         // Assign handler for connect buttons
-        $("#wifi_ssids button[ssid]").click(wifi_connect_click);
+        $('#wifi_ssids button[ssid]').click(wifi_connect_click);
         // Update button for active ssid
         wifi_config_updated(wifi_config, true);
         // re-schedule update in 5 secs
@@ -145,13 +147,12 @@ function wifi_scan()
 function wifi_on_activate()
 {
     console.log('wifi activate');
-    $("#wifi_ssids tbody").html("<tr><td>Scanning...</td></tr>");
+    $('#wifi_ssids tbody').html('<tr><td>Scanning...</td></tr>');
     wifi_scan();
 }
 
 function wifi_on_deactivate()
 {
-    console.log('wifi Deactivate');
     clearTimeout(wifi_scan_timer);
 }
 

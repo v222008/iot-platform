@@ -65,10 +65,12 @@ function led_strip_config_update(c, same_page)
         return;
     }
     // Led cnt
-    $('#led_cnt').val(c["cnt"]);
+    $('#led_cnt').val(c['cnt']);
     // Led type
-    $("#led_form div.btn-group label.btn").removeClass('active');
-    $("#led_type_" + c["type"]).addClass('active');
+    $('#led_form div.btn-group label.btn').removeClass('active');
+    var ledid = '#led_type_' + c['type'];
+    $(ledid).addClass('active');
+    $(ledid + ' input').prop('checked', 'checked');
 }
 
 pages_map['#strip'] = {config_section: "led",
