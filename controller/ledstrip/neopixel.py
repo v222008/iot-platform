@@ -35,6 +35,7 @@ class LedStrip():
         self.cnt = None
         self.defaults = {'cnt': '', 'type': ''}
         self.config = self.defaults.copy()
+        self.loop = asyncio.get_event_loop()
 
     def config_apply(self, cfg, merge=True):
         # Validate config before applying
@@ -176,8 +177,10 @@ class LedStrip():
                 raise Exception('Invalid color format.')
             parsed.append((range(r1 - 1, r2), color))
         # Schedule color change soon
-        loop = asyncio.get_event_loop()
-        loop.call_soon(self.__change_color, parsed)
+        self.loop.call_soon(self.__change_color, parsed)
 
-    def turn_off(self):
-        pass
+    def turn_off(self, data):
+        # Non configured strip
+        if self.type is None:
+            raise Exception('LED Strip is not configured yet.')
+        self.loop.call_soon(self.__change_color, [(range(self.cnt), 0)])

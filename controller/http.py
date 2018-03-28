@@ -9,9 +9,12 @@ class LedStrip():
     def __init__(self, strip):
         self.strip = strip
 
-    def get(self, data):
+    def get(self, data, turn_off=False):
         try:
-            self.strip.turn_on(data)
+            if turn_off:
+                self.strip.turn_off(data)
+            else:
+                self.strip.turn_on(data)
         except Exception as e:
             return {'message': str(e)}, 400
         return {'message': 'scheduled'}

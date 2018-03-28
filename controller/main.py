@@ -113,7 +113,9 @@ def start():
     """Main function - entry point"""
     print("Starting {}...".format(device_name))
     # Add RestAPI resources
-    web.add_resource(http.LedStrip(led_strip), '/v1/ledstrip/on')
+    lstrip_http = http.LedStrip(led_strip)
+    web.add_resource(lstrip_http, '/v1/ledstrip/on')
+    web.add_resource(lstrip_http, '/v1/ledstrip/off', turn_off=True)
     web.add_resource(http.LedStripTest(led_strip), '/v1/ledstrip/test')
     web.add_resource(config, '/v1/config')
     web.add_resource(config.wifi, '/v1/wifi/scan')
@@ -126,14 +128,19 @@ def start():
         statusled.start(config, status_led_pin)
 
     # Start HTTP / DNS servers
-    if not emulator:
-        dns = utils.dns.Server(resolve_to='192.168.168.1')
-        dns.run(host='0.0.0.0', port=53)
-        web.run(host='0.0.0.0', port=80)
-    else:
-        dns = utils.dns.Server(resolve_to='127.0.0.1')
-        dns.run(host='0.0.0.0', port=5353)
-        web.run(host='0.0.0.0', port=8080)
+    try:
+        if not emulator:
+            dns = utils.dns.Server(resolve_to='192.168.168.1')
+            dns.run(host='0.0.0.0', port=53)
+            web.run(host='0.0.0.0', port=80)
+        else:
+            dns = utils.dns.Server(resolve_to='127.0.0.1')
+            dns.run(host='0.0.0.0', port=5354)
+            web.run(host='0.0.0.0', port=8080)
+    except KeyboardInterrupt as e:
+        print(' CTRL+C pressed - terminating...')
+    finally:
+        dns.shutdown()
 
 
 if __name__ == '__main__':
