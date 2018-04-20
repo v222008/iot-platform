@@ -17,4 +17,4 @@ Yahooo, I've got some working prototype!
 ----
 P.S. While software is being developed checkout these hardware part:
 * Schematic: https://easyeda.com/normal/schematic-ad064e31e8404d9ea8c5efc4c6ff6607
-* PCB design: https://easyeda.com/editor#id=044903af465c45638a47e1e123004e89
+* PCB design: https://easyeda.com/editor#id=afcf15dfaa2440be8ed9ae21aea9da5d
