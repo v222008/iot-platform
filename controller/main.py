@@ -11,6 +11,7 @@ MIT license
 import machine
 import sys
 import tinyweb
+import tinydns
 import http
 import config
 import setup
@@ -130,17 +131,20 @@ def start():
     # Start HTTP / DNS servers
     try:
         if not emulator:
-            dns = utils.dns.Server(resolve_to='192.168.168.1')
+            # Captive portal support
+            ip = '192.168.168.1'
+            dns = tinydns.Server({'captive.apple.com': ip,
+                                  'connectivitycheck.gstatic.com': ip,
+                                  'clients3.google.com': ip},
+                                 ttl=10)
             dns.run(host='0.0.0.0', port=53)
+            # Run web server
             web.run(host='0.0.0.0', port=80)
         else:
-            dns = utils.dns.Server(resolve_to='127.0.0.1')
-            dns.run(host='0.0.0.0', port=5354)
+            # for emulator - only web
             web.run(host='0.0.0.0', port=8080)
     except KeyboardInterrupt as e:
         print(' CTRL+C pressed - terminating...')
-    finally:
-        dns.shutdown()
 
 
 if __name__ == '__main__':

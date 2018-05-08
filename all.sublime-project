@@ -25,6 +25,14 @@
 		{
 			"name": "tinyweb",
 			"path": "deps/tinyweb"
+		},
+		{
+			"name": "tinydns",
+			"path": "deps/tinydns"
+		},
+		{
+			"name": "tinymqtt",
+			"path": "deps/tinymqtt"
 		}
 	],
 	"settings":

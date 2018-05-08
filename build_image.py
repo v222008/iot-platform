@@ -79,6 +79,8 @@ if __name__ == '__main__':
     run('cp -rf deps/micropython-lib/uasyncio/uasyncio/ {}/modules/uasyncio'.format(build_dir))
     run('cp -f deps/micropython-lib/uasyncio.core/uasyncio/core.py {}/modules/uasyncio/'.format(build_dir))
     run('cp -rf deps/tinyweb/tinyweb/ {}/modules/tinyweb'.format(build_dir))
+    run('cp -rf deps/tinydns/tinydns/ {}/modules/tinydns'.format(build_dir))
+    run('cp -rf deps/tinymqtt/tinymqtt/ {}/modules/tinymqtt'.format(build_dir))
     run('cp -rf deps/micropython-esp-utils/utils/ {}/modules/utils'.format(build_dir))
     run('cp -rf controller/ {}/modules'.format(build_dir))
     # Create one page web archives

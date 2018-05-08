@@ -6,7 +6,6 @@ import machine
 import network
 import uasyncio as asyncio
 import utime as time
-import utils.dns
 
 
 # Setup button indicators

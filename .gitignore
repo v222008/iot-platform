@@ -1,2 +1,4 @@
 config.json
 build*/
+flash_*
+*.sublime-workspace

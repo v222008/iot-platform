@@ -10,3 +10,9 @@
 [submodule "deps/micropython-esp-utils"]
 	path = deps/micropython-esp-utils
 	url = https://github.com/belyalov/micropython-esp-utils.git
+[submodule "deps/tinydns"]
+	path = deps/tinydns
+	url = https://github.com/belyalov/tinydns.git
+[submodule "deps/tinymqtt"]
+	path = deps/tinymqtt
+	url = https://github.com/belyalov/tinymqtt.git
