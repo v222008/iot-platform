@@ -19,10 +19,6 @@
 			"path": "."
 		},
 		{
-			"name": "esp-utils",
-			"path": "deps/micropython-esp-utils"
-		},
-		{
 			"name": "tinyweb",
 			"path": "deps/tinyweb"
 		},

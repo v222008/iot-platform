@@ -5,57 +5,57 @@ MIT license
 """
 import gc
 import uos
+import machine
 import esp
 import network
-import ubinascii
+
+
+SEC_SIZE = const(4096)
+RESERVED_SECS = const(1)
+START_SEC = esp.flash_user_start() // SEC_SIZE + RESERVED_SECS
+BP_IOCTL_SEC_COUNT = const(4)
+BP_IOCTL_SEC_SIZE = const(5)
 
 
 class CtrlFlashBlockDev:
-    """Class to emulate block device to use it as filesystem for RBG controller."""
-    SEC_SIZE = 4096
-    RESERVED_SECS = 1
-    START_SEC = esp.flash_user_start() // SEC_SIZE + RESERVED_SECS
+    """Class to emulate block device to use it as filesystem."""
 
     def __init__(self):
         # 20K at the flash end is reserved for SDK params storage
         size = esp.flash_size() - (20 * 1024)
-        self.blocks = size // self.SEC_SIZE - self.START_SEC
+        self.blocks = size // SEC_SIZE - START_SEC
 
     def readblocks(self, n, buf):
-        esp.flash_read((n + self.START_SEC) * self.SEC_SIZE, buf)
+        esp.flash_read((n + START_SEC) * SEC_SIZE, buf)
 
     def writeblocks(self, n, buf):
-        esp.flash_erase(n + self.START_SEC)
-        esp.flash_write((n + self.START_SEC) * self.SEC_SIZE, buf)
+        esp.flash_erase(n + START_SEC)
+        esp.flash_write((n + START_SEC) * SEC_SIZE, buf)
 
     def ioctl(self, op, arg):
-        if op == 4:  # BP_IOCTL_SEC_COUNT
+        if op == BP_IOCTL_SEC_COUNT:
             return self.blocks
-        if op == 5:  # BP_IOCTL_SEC_SIZE
-            return self.SEC_SIZE
+        if op == BP_IOCTL_SEC_SIZE:
+            return SEC_SIZE
 
 
-print("Booting RGB controller...")
+# Set up UART
+uos.dupterm(machine.UART(0, 115200), 1)
+# Disable OS debug messages
+esp.osdebug(None)
 
-# Init flash
-# 20K at the flash end is reserved for SDK params storage
+print("\n\nBooting IOT platform....")
+
+# Init filesystem
 flash = CtrlFlashBlockDev()
 uos.mount(flash, '/')
 
 # Set up garbage collector
 gc.threshold((gc.mem_free() + gc.mem_alloc()) // 4)
-# .. And collect garbage after main initialization
+
+# .. And collect garbage after base initialization
 gc.collect()
 
-# Setup AP parameters
-ap_if = network.WLAN(network.AP_IF)
-essid = b'LedController-%s' % ubinascii.hexlify(ap_if.config("mac")[-2:])
-ap_if.active(True)
-ap_if.config(essid=essid, authmode=network.AUTH_WPA_WPA2_PSK, password=b'ledledled')
-ap_if.ifconfig(('192.168.168.1', '255.255.255.0', '192.168.168.1', '192.168.168.1'))
-ap_if.active(False)
-
-# Run RGB controller
+# Run device main
 import main
-
-main.start()
+main.main()

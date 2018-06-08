@@ -1,0 +1,22 @@
+
+name: open-neopixel-controller
+main: main.py
+build_dir: _build_neopixel
+
+frozen:
+  - platform/utils
+  - platform/led/neopixel.py
+  - platform/led/status.py
+  - platform/sensor/ambient.py
+  - platform/btn/setup.py
+
+packages:
+  - deps/tinyweb/tinyweb
+  - deps/tinydns/tinydns
+  - deps/tinymqtt/tinymqtt
+
+micropython-lib:
+  - uasyncio
+  - uasyncio.core
+  - uasyncio.synchro
+  - logging
