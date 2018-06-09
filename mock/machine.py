@@ -25,6 +25,7 @@ class Pin():
     IN = 0
     OUT = 1
     IRQ_FALLING = 2
+    IRQ_RISING = 3
 
     def __init__(self, *args):
         self.idx = args[0]
@@ -45,7 +46,7 @@ class Pin():
             return pinvals[self.idx]
         pinvals[self.idx] = newval
 
-    def irq(trigger=None, handler=None):
+    def irq(self, trigger=None, handler=None):
         pass
 
 

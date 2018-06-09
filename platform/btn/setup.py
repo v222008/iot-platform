@@ -81,7 +81,7 @@ class SetupButton():
         self.loop = loop
         self.handler_task = self._handler()
         if self.btn_pin:
-            self.btn_pin.init(mode=machine.Pin.IN)
+            self.btn_pin.init(machine.Pin.IN)
             self.btn_pin.irq(trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING,
                              handler=self._ISR_hander)
         self.loop.create_task(self.handler_task)

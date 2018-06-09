@@ -27,6 +27,7 @@ class WLAN():
         self._status = 0
         self.state = False
         self.connected = False
+        self.icfg = ('127.0.0.1', '255.255.255.0', '127.0.0.1', '8.8.8.8')
 
     def isconnected(self):
         return self.connected
@@ -50,9 +51,12 @@ class WLAN():
         if param == 'mac':
             return b'\xb4u\x0e\x88\xed\xe4'
 
-    def ifconfig(self):
+    def ifconfig(self, config=None):
+        if config:
+            self.icfg = config
+            return
         if self.connected:
-            return ('127.0.0.1', '255.255.255.0', '127.0.0.1', '8.8.8.8')
+            return self.ifcg
         else:
             return ('', '', '', '')
 
