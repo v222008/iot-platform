@@ -56,7 +56,7 @@ class WLAN():
             self.icfg = config
             return
         if self.connected:
-            return self.ifcg
+            return self.icfg
         else:
             return ('', '', '', '')
 

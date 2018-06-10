@@ -84,52 +84,46 @@ class WifiSetup():
         log.debug('mode changed to {}'.format(self.cfg.wifi_mode))
         network.phy_mode(wifi_modes.index(self.cfg.wifi_mode))
 
-    def get(self, data={}):
+    async def get(self, data):
         # Base params
         if self.sta_if.active():
             status = statuses[self.sta_if.status()]
         else:
             status = statuses[0]
-        res = '{{"connected":{},"mac":"{}","mode":"{}","status":"{}"'.format(
+        yield '{{"connected":{},"mac":"{}","mode":"{}","status":"{}"'.format(
             int(self.sta_if.isconnected()),
             convert_mac(self.sta_if.config('mac')),
             wifi_modes[network.phy_mode()],
             status)
         ifc_raw = self.sta_if.ifconfig()
         for idx, it in enumerate(['ip', 'netmask', 'gateway', 'dns']):
-            res += ',"{}":"{}"'.format(it, ifc_raw[idx])
+            yield ',"{}":"{}"'.format(it, ifc_raw[idx])
         # If scan for networks desired
         if 'scan' in data:
             # Scan for WiFi networks. This is ~2 seconds blocking call.
-            if 'max_entries' in data:
-                max_entries = int(data['max_entries'])
-            else:
-                max_entries = 10
             last_state = self.sta_if.active()
             self.sta_if.active(True)
             # Scan for WiFi networks
-            res += ',"access-points":['
+            yield ',"access-points":['
             ssids = self.sta_if.scan()
             # scan returns: (ssid, bssid, channel, rssi, authmode, hidden)
             # Sort APs by rssi, output up to N
             ssids.sort(key=lambda x: -x[3])
             cnt = 0
+            gc.collect()
             for s in ssids:
                 # Convert SNR to user readable value - quality
                 quality = rssi_to_quality(s[3])
                 if cnt > 0:
-                    res += ',{'
+                    yield ',{'
                 else:
-                    res += '{'
-                res += '"ssid":"{}","mac":"{}","channel":{},"rssi":{},"quality":{},"auth":"{}","auth_raw":{}'.format(
-                    s[0].decode(), convert_mac(s[1]), s[2], s[3], quality, auth_modes[s[4]], s[4])
-                res += '}'
+                    yield '{'
+                yield '"ssid":"{}","mac":"{}","channel":{},"quality":{},"auth":"{}"'.format(
+                      s[0].decode(), convert_mac(s[1]), s[2], quality, auth_modes[s[4]])
+                yield '}'
                 cnt += 1
                 gc.collect()
-                if cnt >= max_entries:
-                    break
-            res += ']'
+            yield ']'
             # If interface was disabled before - turn it off
             self.sta_if.active(last_state)
-        res += '}'
-        return res
+        yield '}'
