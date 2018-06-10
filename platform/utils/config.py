@@ -126,6 +126,8 @@ class SimpleConfig():
             if name not in self.__dict__:
                 raise ConfigError("Param {} doesn't exists".format(name))
             validate_value_type(value)
+            if type(value) != type(getattr(self, name)):  # noqa
+                raise ConfigError("Invalid value type (str/int/etc)")
             self.validate_value(name, value)
         # Update values
         for name, value in params.items():

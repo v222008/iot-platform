@@ -18,11 +18,12 @@ import tinymqtt
 
 import platform.utils.captiveportal
 from platform.btn.setup import SetupButton
-from platform.led.neopixel import Neopixel
 from platform.led.status import StatusLed
 from platform.utils.wifi import WifiSetup
 from platform.utils.config import SimpleConfig
-from platform.sensor.ambient import AmbientAnalogSensor
+from platform.sensor.ambient import AmbientLightAnalogSensor
+
+from strip import NeopixelStrip
 
 
 neopixel_pin = const(4)
@@ -30,58 +31,6 @@ setup_btn_pin = const(5)
 status_led_pin = const(10)
 
 log = logging.Logger('main')
-
-
-def parse_pixels(data):
-    parsed = []
-    for leds, hexcolor in data.items():
-        # Convert hex color to int
-        try:
-            if hexcolor.startswith('#'):
-                hexcolor = hexcolor[1:]
-            bcolor = int(hexcolor, 16).to_bytes(4, 'big')
-        except ValueError:
-            raise ValueError('Invalid color format.')
-        # All pixels
-        if leds.lower() == 'all':
-            parsed.append((None, bcolor))
-            continue
-        # Range, e.g. "1-10"
-        if '-' in leds:
-            arr = leds.split('-')
-            if len(arr) > 2 or not arr[0].isdigit() or not arr[1].isdigit():
-                raise ValueError('Invalid range format')
-            r1 = int(arr[0])
-            r2 = int(arr[1])
-        elif leds.isdigit():
-            r1 = int(leds)
-            r2 = r1
-        else:
-            raise ValueError('Invalid color format')
-        if r1 < 1:
-            raise ValueError('Invalid range format')
-        parsed.append((range(r1 - 1, r2), bcolor))
-    return parsed
-
-
-class NeopixelStrip(Neopixel):
-    def __init__(self, config, mqtt, loop):
-        super().__init__(machine.Pin(neopixel_pin), config, loop)
-        self.mqtt = mqtt
-        self.cfg.add_param('mqtt_topic_led_status', 'neopixel/led')
-        self.cfg.add_param('mqtt_topic_led_control', 'neopixel/led/set')
-        self.mqtt.subscribe(self.cfg.mqtt_topic_led_control, self.mqtt_control)
-
-    def post(self, data):
-        print(data)
-        # In case of no input parameters - just use recent color map
-        if not len(data):
-            data = {'all': '#00ff00'}
-        self.np.fade_in(parse_pixels(data), length=20, delay=20)
-        return {'message': 'color changed'}
-
-    def mqtt_control(self, data):
-        print(data)
 
 
 async def shutdown_wait():
@@ -113,15 +62,16 @@ def main():
     web = tinyweb.webserver()
 
     # Modules
-    ledstrip = NeopixelStrip(config, mqtt, loop)
-    ambi = AmbientAnalogSensor(config, mqtt, machine.ADC(0))
+    ambi = AmbientLightAnalogSensor(config, mqtt, machine.ADC(0))
     setupbtn = SetupButton(config, machine.Pin(setup_btn_pin))
     status = StatusLed(config, machine.Pin(status_led_pin))
 
-    # Web Rest API
+    # Enable REST API for config & wifi
     web.add_resource(config, '/config')
     web.add_resource(wsetup, '/wifi')
-    web.add_resource(ledstrip, '/ledstrip')
+
+    # Create LED strip handler
+    NeopixelStrip(machine.Pin(neopixel_pin), config, web, mqtt, loop)
 
     # Other web routes
     @web.route('/')

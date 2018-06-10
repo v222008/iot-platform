@@ -122,9 +122,17 @@ def build(cfg):
             shell_run('cp -rf {}/ {}'.format(os.path.join(pkg_dir, p), os.path.join(mod_dir, p)))
         for py in pymods:
             shutil.copy2(os.path.join(pkg_dir, py), mod_dir)
-    # boot + main
+    # boot + device files
     shutil.copy2(os.path.join('platform', '_boot.py'), mod_dir)
-    shutil.copy2(os.path.join(cfg['_path'], cfg['main']), os.path.join(mod_dir, 'main.py'))
+    for f in os.listdir(cfg['_path']):
+        if not f.endswith('.py'):
+            continue
+        if f == cfg['main']:
+            # rename main device file into main.py
+            dst = 'main.py'
+        else:
+            dst = f
+        shutil.copy2(os.path.join(cfg['_path'], f), os.path.join(mod_dir, dst))
     # compile micropython for esp8266
     shell_run('docker run --rm '
               '-v`pwd`/deps/micropython:/micropython '

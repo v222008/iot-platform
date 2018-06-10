@@ -44,10 +44,40 @@ class Neopixel():
         self.anim = None
         self.reconfigure()
 
+    def parse_pixels_format(self, data):
+        parsed = []
+        for leds, hexcolor in data.items():
+            # Convert hex color to int
+            try:
+                if hexcolor.startswith('#'):
+                    hexcolor = hexcolor[1:]
+                bcolor = int(hexcolor, 16).to_bytes(4, 'big')
+            except ValueError:
+                raise ValueError('Invalid color format.')
+            # All pixels
+            if leds.lower() == 'all':
+                parsed.append((range(self.cnt), bcolor))
+                continue
+            # Range, e.g. "1-10"
+            if '-' in leds:
+                arr = leds.split('-')
+                if len(arr) > 2 or not arr[0].isdigit() or not arr[1].isdigit():
+                    raise ValueError('Invalid range format')
+                r1 = int(arr[0])
+                r2 = int(arr[1])
+            elif leds.isdigit():
+                r1 = int(leds)
+                r2 = r1
+            else:
+                raise ValueError('Invalid color format')
+            if r1 < 1:
+                raise ValueError('Invalid range format')
+            parsed.append((range(r1 - 1, r2), bcolor))
+        return parsed
+
     def reconfigure(self):
         self.cnt = self.cfg.neopixel_cnt
         self.colors = self.cfg.neopixel_colors
-        print('reconf {} pixes with {} col'.format(self.cnt, self.colors))
         self.buf = bytearray(self.colors * self.cnt)
 
     def __change_color(self, pixels):
@@ -59,48 +89,53 @@ class Neopixel():
             col[2:4] = color[2:4]
             # Check range. None - means all pixels
             if not leds:
-                leds = range(0, self.cnt)
+                leds = range(self.cnt)
             for l in leds:
                 idx = l * self.colors
                 self.buf[idx:idx + self.colors] = col[:self.colors]
-        # print(self.buf)
         esp.neopixel_write(self.pin, self.buf, True)
 
     def set_color(self, pixels):
-        self.__change_color(pixels)
+        self.__change_color(self.parse_pixels_format(pixels))
 
     def set_color_all(self, color):
         self.__change_color([(range(self.cnt), color)])
 
     async def __fade_effect(self, pixels, length, delay):
-        # Create black mask
-        current = []
-        increments = []
-
+        incs = bytearray(self.colors * self.cnt)
+        col = bytearray(4)
+        # Calculate increments (decrements) for each color
+        # range -> color, e.g.:
+        # [(range(0, 5), b'\xff\xff\xff\xff')]
         for leds, color in pixels:
-            # Calculate increments based on fade length
-            inc_color = bytearray(color)
-            for i, c in enumerate(inc_color):
-                inc_color[i] = color[i] // length
-            increments.append(inc_color)
-            # Fill with black
-            current.append((leds, b'\x00' * 4))
+            # convert color
+            col[0] = color[1]
+            col[1] = color[0]
+            col[2:4] = color[2:4]
+            if not leds:
+                leds = range(0, self.cnt)
+            for l in leds:
+                for c in range(self.colors):
+                    idx = l * self.colors + c
+                    incval = int((col[c] - self.buf[idx]) / length)
+                    incs[idx] = incval
+        # Run effect
         for step in range(length):
-            # increase colors
-            for idx, pxl in enumerate(current):
-                newcol = bytearray(pxl[1])
-                for i, c in enumerate(newcol):
-                    newcol[i] = c + increments[idx][i]
-                current[idx] = (pxl[0], newcol)
-            self.__change_color(current)
+            for leds, color in pixels:
+                if not leds:
+                    leds = range(0, self.cnt)
+                for l in leds:
+                    for c in range(self.colors):
+                        idx = l * self.colors + c
+                        self.buf[idx] += incs[idx]
+            esp.neopixel_write(self.pin, self.buf, True)
             await asyncio.sleep_ms(delay)
+        # Set final (desired) color
+        self.__change_color(pixels)
 
-    def fade_in(self, pixels, length=5, delay=50):
+    def fade_effect(self, pixels, length=5, delay=50):
+        print("fe", pixels)
         if self.anim:
             asyncio.cancel(self.anim)
-        self.loop.create_task(self.__fade_effect(pixels, length, delay))
-
-    def fade_out(self, pixels, length=5, delay=50):
-        if self.anim:
-            asyncio.cancel(self.anim)
-        self.loop.create_task(self.__fade_in(pixels, length, delay))
+        self.loop.create_task(self.__fade_effect(self.parse_pixels_format(pixels),
+                                                 length, delay))

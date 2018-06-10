@@ -6,7 +6,7 @@ MIT license
 """
 
 import unittest
-from platform.utils.config import SimpleConfig
+from platform.utils.config import SimpleConfig, ConfigError
 
 
 # Tests
@@ -53,6 +53,17 @@ class ConfigTests(unittest.TestCase):
         # final check
         exp = {"blah2": "22", "cb": 200, "blah3": False, "blah1": 11}
         self.assertEqual(self.cfg.get_params(), exp)
+
+    def testValueType(self):
+        self.cfg.add_param('blah1', default=1)
+        self.cfg.add_param('blah2', default='2')
+        self.cfg.add_param('blah3', default=True)
+        with self.assertRaises(ConfigError):
+            self.cfg.update({'blah1': '1'})
+        with self.assertRaises(ConfigError):
+            self.cfg.update({'blah2': 1})
+        with self.assertRaises(ConfigError):
+            self.cfg.update({'blah3': '1'})
 
     def testGroups(self):
         self.cfg.add_param('c1', default=1, callback=self.cb1)

@@ -3,7 +3,6 @@ MIT license
 (C) Konstantin Belyalov 2017-2018
 """
 import uasyncio as asyncio
-import machine
 import sys
 import logging
 
@@ -11,7 +10,7 @@ import logging
 log = logging.getLogger('AMBIENT')
 
 
-class AmbientAnalogSensor():
+class AmbientLightAnalogSensor():
     def __init__(self, config, mqtt, pin):
         """Generic analog ambient sensor based on 5528 light resistor
         Arguments:
@@ -33,8 +32,8 @@ class AmbientAnalogSensor():
             try:
                 value = self.sensor.read()
                 diff = abs(value - last_value)
-                log.debug('read value {}, diff {}'.format(value, diff))
                 if diff > self.cfg.sensor_ambient_threshold:
+                    log.debug('Light level changed by {} to {}, publishing...'.format(diff, value))
                     self.mqtt.publish(self.cfg.mqtt_topic_sensor_light, str(value))
                 last_value = value
                 await asyncio.sleep(self.cfg.sensor_ambient_interval)

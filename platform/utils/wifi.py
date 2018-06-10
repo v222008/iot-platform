@@ -5,6 +5,7 @@ MIT license
 (C) Konstantin Belyalov 2017-2018
 """
 import gc
+import logging
 import network
 import ubinascii as binascii
 
@@ -13,6 +14,9 @@ wifi_modes = ['', '802.11b', '802.11g', '802.11n']
 auth_modes = ['Open', 'WEP', 'WPA-PSK', 'WPA2-PSK', 'WPA/WPA2-PSK']
 statuses = ['Not Connected', 'Connecting', 'Wrong Password',
             'No AP Found', 'Connection Failed', 'Connected']
+
+
+log = logging.Logger('WIFI')
 
 
 def rssi_to_quality(rssi):
@@ -68,13 +72,16 @@ class WifiSetup():
     def ssid_changed(self):
         """Config callback when either ssid or password changed"""
         if self.cfg.wifi_ssid == '':
+            log.debug("WiFi station disabled")
             self.sta_if.active(False)
         else:
+            log.debug("WiFi enabled, connecting to ssid '{}'".format(self.cfg.wifi_ssid))
             self.sta_if.active(True)
             self.sta_if.connect(self.cfg.wifi_ssid, self.cfg.wifi_password)
 
     def mode_changed(self):
         """Config callback for wifi mode change"""
+        log.debug('mode changed to {}'.format(self.cfg.wifi_mode))
         network.phy_mode(wifi_modes.index(self.cfg.wifi_mode))
 
     def get(self, data={}):
