@@ -1,20 +1,38 @@
-## WS2812b LED Wifi Enabled Controller
+# Internet Of Things Platform
+[Micropython](https://github.com/micropython/micropython) based IOT platform is a set of useful tools and utilities to build open source firmware for various devices like LED strip controllers / wall switches / temperature and humidity sensors.
 
-... here will be documentation soon...
+P.S. documentation writing in progress... :)
 
-Work in progress for now... Stay tuned..
+## Supported devices
+1. [Open Source Neopixel ESP8266 based controller](https://easyeda.com/kr.belyalov/WS2812b_led_strip_controller-5b6d9e5de0324d9a89108fcd10161d9e)
+2. Soon :)
 
-Yahooo, I've got some working prototype!
+## Ubuntu
+### Build
+1. Install required packages
+```bash
+$ sudo apt-get update
+$ sudo apt-get install -y docker.io git python python-yaml esptool
+```
+2. Clone project (be sure to use `--recursive`):
+```bash
+$ git clone --recursive https://github.com/belyalov/iot-platform.git
+```
 
-### UI screenshots
-![Screenshot](screenshots/i2.png)
-![Screenshot](screenshots/i3.png)
+3. Enter into project
+```bash
+$ cd iot-platform/
+```
 
-### Prototype (RC1 version)
-![Prototype](screenshots/i1111.jpg)
+4. Build desired device! :)
+```bash
+# ./build.py build <device folder>
+$ sudo ./build.py build devices/open_neopixel_controller/
+```
+Firmware is ready!
 
-
-----
-P.S. While software is being developed checkout these hardware part:
-* Schematic: https://easyeda.com/normal/schematic-ad064e31e8404d9ea8c5efc4c6ff6607
-* PCB design: https://easyeda.com/editor#id=afcf15dfaa2440be8ed9ae21aea9da5d
+### Flash firmware
+To flash your device with compiled firmware:
+```bash
+$ esptool --port <UART PORT> --baud 460800 write_flash -fm dout 0 ./_build_neopixel/esp8266/firmware-combined.bin
+```
