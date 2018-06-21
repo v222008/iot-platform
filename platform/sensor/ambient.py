@@ -34,7 +34,7 @@ class AmbientLightAnalogSensor():
                 diff = abs(value - last_value)
                 if diff > self.cfg.sensor_ambient_threshold:
                     log.debug('Light level changed by {} to {}, publishing...'.format(diff, value))
-                    self.mqtt.publish(self.cfg.mqtt_topic_sensor_light, str(value))
+                    self.mqtt.publish(self.cfg.mqtt_topic_sensor_light, str(value), retain=True)
                 last_value = value
                 await asyncio.sleep(self.cfg.sensor_ambient_interval)
             except asyncio.CancelledError:
