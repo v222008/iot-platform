@@ -128,10 +128,14 @@ def main():
         # Run main loop
         loop.run_forever()
     except KeyboardInterrupt as e:
-        print(', terminating...')
-        for s in [web, dns, mqtt, ambi, setupbtn, status]:
-            s.shutdown()
-        loop.run_until_complete(shutdown_wait())
+        if platform.utils.is_emulator():
+            print('terminating...')
+            for s in [web, dns, mqtt, ambi, setupbtn, status]:
+                s.shutdown()
+            loop.run_until_complete(shutdown_wait())
+            print('Done')
+        else:
+            raise
 
 
 if __name__ == '__main__':

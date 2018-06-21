@@ -7,7 +7,8 @@ import gc
 import uos
 import machine
 import esp
-import network
+import utime
+import sys
 
 
 SEC_SIZE = const(4096)
@@ -57,5 +58,17 @@ gc.threshold((gc.mem_free() + gc.mem_alloc()) // 4)
 gc.collect()
 
 # Run device main
-import main
-main.main()
+try:
+    import main
+    main.main()
+except KeyboardInterrupt:
+    # Allow terminate execution by Ctrl+C - REPR will be activated
+    pass
+except Exception as e:
+    print('unhandled exp')
+    sys.print_exception(e)
+    # Catch all unhanded exceptions, write backtrace to file
+    # and reset device.
+    with open('unhandled.{}'.format(utime.ticks_ms()), mode='w') as f:
+        sys.print_exception(e, f)
+    machine.reset()
