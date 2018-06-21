@@ -101,7 +101,7 @@ class Neopixel():
     def set_color_all(self, color):
         self.__change_color([(range(self.cnt), color)])
 
-    async def __fade_effect(self, pixels, length, delay):
+    async def __fade_effect(self, pixels, length, delay, callback):
         incs = bytearray(self.colors * self.cnt)
         col = bytearray(4)
         # Calculate increments (decrements) for each color
@@ -132,10 +132,13 @@ class Neopixel():
             await asyncio.sleep_ms(delay)
         # Set final (desired) color
         self.__change_color(pixels)
+        # Run finish callback, if any
+        if callback:
+            callback()
 
-    def fade_effect(self, pixels, length=5, delay=50):
+    def fade_effect(self, pixels, length=5, delay=50, callback=None):
         print("fe", pixels)
         if self.anim:
             asyncio.cancel(self.anim)
         self.loop.create_task(self.__fade_effect(self.parse_pixels_format(pixels),
-                                                 length, delay))
+                                                 length, delay, callback))

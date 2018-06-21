@@ -37,6 +37,14 @@ class NeopixelStrip(Neopixel):
         """Callback when mqtt control topic changed"""
         self.mqtt.subscribe(self.cfg.mqtt_topic_led_control, self.mqtt_control)
 
+    def publish_mqtt_state(self, state):
+        val = 0
+        for c in self.buf:
+            if c > 0:
+                val = 1
+                break
+        self.mqtt.publish(self.cfg.mqtt_topic_led_status, str(val), retain=True)
+
     def on(self, data):
         if 'color' not in data:
             color = self.cfg.led_last_on_color
@@ -44,12 +52,13 @@ class NeopixelStrip(Neopixel):
             color = data['color']
         self.cfg.led_last_on_color = color
         pixels = data.get('pixels', {'all': color})
-        print('on', pixels)
         self.set_color(pixels)
+        self.publish_mqtt_state()
 
     def off(self, data):
         # Set all to black = turn off
         self.set_color_all(b'\x00\x00\x00\x00')
+        self.publish_mqtt_state()
 
     def fade(self, data):
         if 'color' not in data:
@@ -60,8 +69,7 @@ class NeopixelStrip(Neopixel):
         pixels = data.get('pixels', {'all': color})
         length = data.get('length', 20)
         delay = data.get('delay', 20)
-        print('fade', pixels, length, delay, data)
-        self.fade_effect(pixels, length, delay)
+        self.fade_effect(pixels, length, delay, callback=self.publish_mqtt_state)
 
     def process_command(self, data, action):
         # by default - all pixels
