@@ -21,6 +21,17 @@ class ADC():
         return self.val
 
 
+class PWM():
+    def __init__(self, pin, freq=1000):
+        self.pin = pin
+        self.freq = freq
+        self.duty_val = 0
+
+    def duty(self, val):
+        self.duty_val = val
+        print("PWM to", val)
+
+
 class Pin():
     IN = 0
     OUT = 1
