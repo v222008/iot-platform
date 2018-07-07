@@ -8,6 +8,7 @@ import logging
 import ujson as json
 import sys
 from platform.led.neopixel import Neopixel
+from platform.exclog import log_exception
 
 
 log = logging.getLogger('LEDSTRIP')
@@ -37,7 +38,7 @@ class NeopixelStrip(Neopixel):
         """Callback when mqtt control topic changed"""
         self.mqtt.subscribe(self.cfg.mqtt_topic_led_control, self.mqtt_control)
 
-    def publish_mqtt_state(self, state):
+    def publish_mqtt_state(self):
         val = 0
         for c in self.buf:
             if c > 0:
@@ -84,6 +85,8 @@ class NeopixelStrip(Neopixel):
             return {'message': 'color changed'}
         except StripError as e:
             return {'message': e}, 404
+        except Exception as e:
+            log_exception(e)
 
     def get(self, data, action):
         return self.post(data, action)
@@ -91,8 +94,7 @@ class NeopixelStrip(Neopixel):
     def mqtt_control(self, data):
         try:
             js = json.loads(data)
-            act = js.get('effect', 'on')
+            act = js.get('effect', 'fade')
             self.process_command(js, act)
         except Exception as e:
-            log.error(e)
-            sys.print_exception(e)
+            log_exception(e)

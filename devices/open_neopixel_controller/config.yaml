@@ -9,6 +9,7 @@ frozen:
   - platform/led/status.py
   - platform/sensor/ambient.py
   - platform/btn/setup.py
+  - platform/exclog.py
 
 packages:
   - deps/tinyweb/tinyweb

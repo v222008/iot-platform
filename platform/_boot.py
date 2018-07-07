@@ -7,7 +7,6 @@ import gc
 import uos
 import machine
 import esp
-import utime
 import sys
 
 
@@ -69,6 +68,6 @@ except Exception as e:
     sys.print_exception(e)
     # Catch all unhanded exceptions, write backtrace to file
     # and reset device.
-    with open('unhandled.{}'.format(utime.ticks_ms()), mode='w') as f:
+    with open('exclog', mode='a') as f:
         sys.print_exception(e, f)
     machine.reset()

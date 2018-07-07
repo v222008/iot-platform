@@ -4,7 +4,8 @@ MIT license
 """
 import logging
 import uasyncio as asyncio
-import sys
+
+from platform.exclog import log_exception
 
 
 log = logging.getLogger('STATUS_LED')
@@ -39,7 +40,7 @@ class StatusLed():
                 log.debug("StatusLED stopped")
                 return
             except Exception as e:
-                sys.print_exception(e)
+                log_exception(e)
 
     def run(self, loop):
         self.loop = loop

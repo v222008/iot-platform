@@ -22,6 +22,7 @@ from platform.led.status import StatusLed
 from platform.utils.wifi import WifiSetup
 from platform.utils.config import SimpleConfig
 from platform.sensor.ambient import AmbientLightAnalogSensor
+from platform.exclog import Exclog, log_exception
 
 from strip import NeopixelStrip
 
@@ -69,6 +70,7 @@ def main():
     # Enable REST API for config & wifi
     web.add_resource(config, '/config')
     web.add_resource(wsetup, '/wifi')
+    web.add_resource(Exclog(), '/exclog')
 
     # Create LED strip handler
     NeopixelStrip(machine.Pin(neopixel_pin), config, web, mqtt, loop)
@@ -92,6 +94,10 @@ def main():
         await resp.send_file('setup_all.html.gz',
                              content_encoding='gzip',
                              content_type='text/html')
+
+    @web.route('/restart')
+    async def page_restart(req, resp):
+        machine.reset()
 
     # Setup AP parameters
     ap_if = network.WLAN(network.AP_IF)
@@ -136,6 +142,8 @@ def main():
             print('Done')
         else:
             raise
+    except Exception as e:
+        log_exception(e)
 
 
 if __name__ == '__main__':

@@ -3,8 +3,9 @@ MIT license
 (C) Konstantin Belyalov 2017-2018
 """
 import uasyncio as asyncio
-import sys
 import logging
+
+from platform.exclog import log_exception
 
 
 log = logging.getLogger('AMBIENT')
@@ -42,7 +43,7 @@ class AmbientLightAnalogSensor():
                 log.debug("AmbientAnalogSensor stopped")
                 return
             except Exception as e:
-                sys.print_exception(e)
+                log_exception(e)
 
     def run(self, loop):
         self.loop = loop

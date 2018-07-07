@@ -9,6 +9,10 @@ def unique_id():
     return b'__unix__'
 
 
+def reset():
+    print("(reset)")
+
+
 pinvals = {}
 
 
