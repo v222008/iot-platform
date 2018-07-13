@@ -1,0 +1,22 @@
+
+name: magic-led-controller
+main: main.py
+build_dir: _build_magic_led
+
+frozen:
+  - platform/utils
+  - platform/led/status.py
+  - platform/sensor/ambient.py
+  - platform/btn/setup.py
+  - platform/exclog.py
+
+packages:
+  - deps/tinyweb/tinyweb
+  - deps/tinydns/tinydns
+  - deps/tinymqtt/tinymqtt
+
+micropython-lib:
+  - uasyncio
+  - uasyncio.core
+  - uasyncio.synchro
+  - logging
