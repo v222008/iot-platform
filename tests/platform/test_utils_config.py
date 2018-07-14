@@ -6,7 +6,8 @@ MIT license
 """
 
 import unittest
-from platform.utils.config import SimpleConfig, ConfigError
+import ujson
+from platform.utils.config import SimpleConfig, ConfigError, CONFIG_BLOCK, BLOCK_SIZE
 
 
 # Tests
@@ -23,6 +24,11 @@ class ConfigTests(unittest.TestCase):
         self.cb1_fired = 0
         self.cb2_fired = 0
         self.cfg = SimpleConfig(autosave=False)
+
+    def assertParams(self, obj):
+        jstr = [x for x in self.cfg.get({})]
+        data = ujson.loads(''.join(jstr))
+        self.assertEqual(data, obj)
 
     def testSanity(self):
         self.cfg.add_param('blah1', default=1)
@@ -52,7 +58,27 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(self.cb1_fired, 1)
         # final check
         exp = {"blah2": "22", "cb": 200, "blah3": False, "blah1": 11}
-        self.assertEqual(self.cfg.get_params(), exp)
+        self.assertParams(exp)
+
+    def testSaveLoad(self):
+        self.cfg.add_param('blah0', default=0)
+        self.cfg.add_param('blah300', default=300)
+        self.cfg.add_param('blah_below_zero', default=-1)
+        self.cfg.add_param('blah_max_int', default=2147483647)
+        self.cfg.add_param('blah_str', default='12345')
+        self.cfg.add_param('blah_str_zero', default='')
+        self.cfg.add_param('blah3', default=True)
+        self.cfg.add_param('blah33', default=False)
+        self.cfg.save()
+        jstr1 = [x for x in self.cfg.get({})]
+        data1 = ujson.loads(''.join(jstr1))
+
+        # Create another config instance and load it from previously saved config.
+        cfg2 = SimpleConfig(autosave=False)
+        cfg2.load()
+        jstr2 = [x for x in cfg2.get({})]
+        data2 = ujson.loads(''.join(jstr2))
+        self.assertEqual(data1, data2)
 
     def testValueType(self):
         self.cfg.add_param('blah1', default=1)
@@ -83,7 +109,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(self.cb2_fired, 2)
         # Ensure that config has right values
         exp = {"c1": 11, "g1": 22, "g2": 44}
-        self.assertEqual(self.cfg.get_params(), exp)
+        self.assertParams(exp)
 
     def testValidators(self):
         def validator(name, value):
