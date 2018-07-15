@@ -21,8 +21,8 @@ from platform.btn.setup import SetupButton
 from platform.led.status import StatusLed
 from platform.utils.wifi import WifiSetup
 from platform.utils.config import SimpleConfig
+from platform.utils.remotelogging import RemoteLogging
 from platform.sensor.ambient import AmbientLightAnalogSensor
-from platform.exclog import Exclog, log_exception
 
 from strip import NeopixelStrip
 
@@ -44,6 +44,9 @@ def main():
     if hasattr(micropython, 'alloc_emergency_exception_buf'):
         micropython.alloc_emergency_exception_buf(100)
 
+    # Setup hostname
+    hostname = b'NeoPixelCtrl_%s' % platform.utils.mac_last_digits()
+
     loop = asyncio.get_event_loop()
     logging.basicConfig(level=logging.DEBUG)
 
@@ -51,6 +54,9 @@ def main():
     config = SimpleConfig()
     config.add_param('configured', False)
     wsetup = WifiSetup(config)
+
+    # Setup remote logging
+    RemoteLogging(hostname, config)
 
     # MQTT
     mqtt = tinymqtt.MQTTClient('neopixelcontroller-{}'.format(
@@ -70,7 +76,6 @@ def main():
     # Enable REST API for config & wifi
     web.add_resource(config, '/config')
     web.add_resource(wsetup, '/wifi')
-    web.add_resource(Exclog(), '/exclog')
 
     # Create LED strip handler
     NeopixelStrip(machine.Pin(neopixel_pin), config, web, mqtt, loop)
@@ -101,11 +106,11 @@ def main():
 
     # Setup AP parameters
     ap_if = network.WLAN(network.AP_IF)
-    essid = b'NeoPixelCtrl-%s' % platform.utils.mac_last_digits()
     ap_if.active(True)
-    ap_if.config(essid=essid, authmode=network.AUTH_WPA_WPA2_PSK, password=b'neopixel')
+    ap_if.config(essid=hostname, authmode=network.AUTH_WPA_WPA2_PSK, password=b'neopixel')
     ap_if.ifconfig(('192.168.168.1', '255.255.255.0', '192.168.168.1', '192.168.168.1'))
     ap_if.active(False)
+
     # Captive portal
     platform.utils.captiveportal.enable(web, dns, '192.168.168.1')
 
@@ -114,7 +119,6 @@ def main():
         config.load()
     except Exception as e:
         log.warning('Config load failed: {}'.format(e))
-        pass
 
     # Main loop
     try:
@@ -143,7 +147,7 @@ def main():
         else:
             raise
     except Exception as e:
-        log_exception(e)
+        log.exc(e, "Unhandled exception in main loop")
 
 
 if __name__ == '__main__':

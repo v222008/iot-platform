@@ -8,8 +8,6 @@ import network
 import uasyncio as asyncio
 import utime as time
 
-from platform.exclog import log_exception
-
 
 log = logging.getLogger('SETUP_BTN')
 
@@ -76,7 +74,7 @@ class SetupButton():
                 log.debug("SetupButton stopped")
                 return
             except Exception as e:
-                log_exception(e)
+                log.exc(e, "Unhandled exception")
 
     def run(self, loop):
         self.loop = loop

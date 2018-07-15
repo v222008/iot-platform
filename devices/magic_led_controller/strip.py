@@ -8,7 +8,6 @@ import logging
 import machine
 import ujson as json
 import uasyncio as asyncio
-from platform.exclog import log_exception
 
 log = logging.getLogger('LEDSTRIP')
 
@@ -106,7 +105,7 @@ class WhiteLedStrip():
         except ValueError as e:
             return {'message': e}, 400
         except Exception as e:
-            log_exception(e)
+            log.exc(e, "Unhandled exception")
 
     def get(self, data, action):
         return self.post(data, action)
@@ -120,7 +119,7 @@ class WhiteLedStrip():
         except ValueError:
             pass
         except Exception as e:
-            log_exception(e)
+            log.exc(e, "Unhandled exception")
             return
 
         # One more chance - try to use it as JSON
@@ -132,4 +131,4 @@ class WhiteLedStrip():
         except ValueError:
             pass
         except Exception as e:
-            log_exception(e)
+            log.exc(e, "Unhandled exception")

@@ -3,11 +3,11 @@ MIT license
 (C) Micropython team
 (C) Konstantin Belyalov 2017-2018
 """
-import gc
-import uos
-import machine
 import esp
-import sys
+import gc
+import logging
+import machine
+import uos
 
 
 SEC_SIZE = const(4096)
@@ -15,6 +15,9 @@ RESERVED_SECS = const(1)
 START_SEC = esp.flash_user_start() // SEC_SIZE + RESERVED_SECS
 BP_IOCTL_SEC_COUNT = const(4)
 BP_IOCTL_SEC_SIZE = const(5)
+
+
+log = logging.Logger('BOOT')
 
 
 class CtrlFlashBlockDev:
@@ -64,10 +67,5 @@ except KeyboardInterrupt:
     # Allow terminate execution by Ctrl+C - REPR will be activated
     pass
 except Exception as e:
-    print('unhandled exp')
-    sys.print_exception(e)
-    # Catch all unhanded exceptions, write backtrace to file
-    # and reset device.
-    with open('exclog', mode='a') as f:
-        sys.print_exception(e, f)
+    log.exc(e, "main.main() unhandled exception, resetting device")
     machine.reset()

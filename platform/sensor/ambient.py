@@ -5,8 +5,6 @@ MIT license
 import uasyncio as asyncio
 import logging
 
-from platform.exclog import log_exception
-
 
 log = logging.getLogger('AMBIENT')
 
@@ -43,7 +41,7 @@ class AmbientLightAnalogSensor():
                 log.debug("AmbientAnalogSensor stopped")
                 return
             except Exception as e:
-                log_exception(e)
+                log.exc(e, "Unhandled exception")
 
     def run(self, loop):
         self.loop = loop

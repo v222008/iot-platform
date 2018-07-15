@@ -20,7 +20,6 @@ import platform.utils.captiveportal
 from platform.btn.setup import SetupButton
 from platform.utils.wifi import WifiSetup
 from platform.utils.config import SimpleConfig
-from platform.exclog import Exclog, log_exception
 
 from strip import WhiteLedStrip
 
@@ -65,7 +64,6 @@ def main():
     # Enable REST API for config & wifi
     web.add_resource(config, '/config')
     web.add_resource(wsetup, '/wifi')
-    web.add_resource(Exclog(), '/exclog')
 
     # Create LED strip handler
     WhiteLedStrip(machine.Pin(green_pin), config, web, mqtt, loop)
@@ -135,7 +133,7 @@ def main():
         else:
             raise
     except Exception as e:
-        log_exception(e)
+        log.exc(e, "Unhandled exception")
 
 
 if __name__ == '__main__':

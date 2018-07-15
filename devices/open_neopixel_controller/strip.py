@@ -8,7 +8,6 @@ import logging
 import ujson as json
 import sys
 from platform.led.neopixel import Neopixel
-from platform.exclog import log_exception
 
 
 log = logging.getLogger('LEDSTRIP')
@@ -86,7 +85,7 @@ class NeopixelStrip(Neopixel):
         except StripError as e:
             return {'message': e}, 404
         except Exception as e:
-            log_exception(e)
+            log.exc(e, "Unhandled exception")
 
     def get(self, data, action):
         return self.post(data, action)
@@ -97,4 +96,4 @@ class NeopixelStrip(Neopixel):
             act = js.get('effect', 'fade')
             self.process_command(js, act)
         except Exception as e:
-            log_exception(e)
+            log.exc(e, "Unhandled exception")
