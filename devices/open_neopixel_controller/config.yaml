@@ -1,5 +1,5 @@
 
-name: open-neopixel-controller
+name: open_neopixel_controller
 main: main.py
 build_dir: _build_neopixel
 
@@ -20,3 +20,15 @@ micropython-lib:
   - uasyncio.core
   - uasyncio.synchro
   - logging
+
+# As an example for now
+# filesystems:
+#   /web:
+#     files:
+#       - README.md
+#     readonly: true
+#     reserved: 10000
+
+#   /shit:
+#     files:
+#       - config.yaml

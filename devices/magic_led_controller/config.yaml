@@ -1,5 +1,5 @@
 
-name: magic-led-controller
+name: magic_led_controller
 main: main.py
 build_dir: _build_magic_led
 

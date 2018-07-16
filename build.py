@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import shutil
@@ -8,11 +8,10 @@ import sys
 import yaml
 
 
-fs_empty_fn = 'empty_fs.vfat'
+fs_empty_fn = 'platform/empty_fs.vfat'
 fs_fn = 'fs.vfat'
-fs_firmware_start = 0x99000
-final_firmware_fn = 'rgb-controller-esp8266.bin'
-
+data_flash_start = 0xa0000
+sec_size = 4096
 
 # mkdir -p
 def mkdir_p(path):
@@ -46,10 +45,13 @@ def get_mlib_files(name):
         for line in f:
             sline = line.strip()[:-1]
             if sline.startswith('py_modules'):
-                exec(sline)
-                py_modules = [x + '.py' for x in py_modules]
+                namespace = {}
+                exec(sline, namespace)
+                py_modules = [x + '.py' for x in namespace['py_modules']]
             elif sline.startswith('packages'):
-                exec(sline)
+                namespace = {}
+                exec(sline, namespace)
+                packages = namespace['packages']
     return packages, py_modules
 
 
@@ -90,13 +92,13 @@ def setup(cfg):
     for f in os.listdir(os.path.join(cdir, 'mock')):
         os.symlink(os.path.join(cdir, 'mock', f), os.path.join(mdir, f))
 
-    print "Done local setup for device", cfg['name']
+    print("Done local setup for device", cfg['name'])
 
 
 def run(cfg):
     setup(cfg)
     cmd = 'micropython {}'.format(os.path.join(cfg['_path'], cfg['main']))
-    print '\n$ {}\n'.format(cmd)
+    print('\n$ {}\n'.format(cmd))
     shell_run(cmd)
 
 
@@ -140,18 +142,97 @@ def build(cfg):
               '-v`pwd`/{}/esp8266:/micropython/ports/esp8266/build '
               'arsenicus/esp-open-sdk '
               '/bin/bash -c ". ~/.bashrc && cd /micropython/ports/esp8266 && make"'.format(build_dir, build_dir))
+    # Prepare final image
+    base_firmware_fn = os.path.join(build_dir, 'esp8266', 'firmware-combined.bin')
+    if os.stat(base_firmware_fn).st_size > data_flash_start:
+        print("\nERROR:Image too big, unable append file system.")
+        quit(1)
+    with open(base_firmware_fn, 'rb') as f:
+        firmware = f.read()
+        firmware_len = len(firmware)
+    # Add padding between firmare and metadata
+    padding = b'\xff' * (data_flash_start - firmware_len)
+    # Image metadata, located at 0xa0000 sector.
+    meta = bytearray([0xff] * sec_size)
+    # Write final firmware
+    final_fn = os.path.join(build_dir, cfg['name'] + '.bin')
+    fs_total_len = 0
+    with open(final_fn, 'wb') as fout:
+        fout.write(firmware)
+        fout.write(padding)
+        fout.write(meta)
+        # Add filesystems
+        meta_off = 0  # offset in metadata
+        fs_sect = data_flash_start // sec_size + 1
+        for mount_point, fscfg in cfg.get('filesystems', {}).items():
+            print('processing', mount_point)
+            if len(mount_point) > 16:
+                print("Mount point '{}' too long".format(mount_point))
+                quit(1)
+            if mount_point[0] != '/':
+                print("Invalid mount point", mount_point)
+            # Create FAT
+            fat_fn = os.path.join(build_dir, mount_point[1:] + '.vfat')
+            shutil.copy2(fs_empty_fn, fat_fn)
+            for f in fscfg.get('files', []):
+                shell_run('MTOOLS_SKIP_CHECK=1 mcopy -s -i %s %s ::/' % (fat_fn, os.path.join(cfg['_path'], f)))
+            # Fill meta with final FS information
+            fs_len = os.stat(fat_fn).st_size
+            # Final len includes: reserve space + padding
+            fs_final_len = fs_len + fscfg.get('reserved', sec_size)
+            fs_padding = sec_size - (fs_final_len % sec_size)
+            if fs_padding == sec_size:
+                fs_padding = 0
+            fs_final_len += fs_padding
+            # Write FS padding
+            if fs_padding:
+                with open(fat_fn, 'ab') as fs:
+                    fs.write(b'\xff' * (fs_final_len - fs_len))
+            print('\tvFat size ', fs_len)
+            print('\tReserved  ', fscfg.get('reserved', sec_size))
+            print('\tPadding   ', fs_padding)
+            print('\tStart Sec ', fs_sect)
+            print('\tTotal Len ', fs_final_len)
+            print()
+            fs_total_len += fs_final_len
+            # Update meta info
+            meta[meta_off:meta_off + 16] = mount_point.ljust(16).encode()
+            meta_off += 16
+            meta[meta_off:meta_off + 4] = fs_sect.to_bytes(4, 'big')
+            meta_off += 4
+            meta[meta_off:meta_off + 4] = fs_final_len.to_bytes(4, 'big')
+            meta_off += 4
+            meta[meta_off] = fscfg.get('readonly', False)
+            # 3 bytes reserved
+            meta_off += 4
+            fs_sect += fs_final_len // sec_size
+            # Write prepared filesystem into image
+            with open(fat_fn, 'rb') as fin:
+                fout.write(fin.read())
+        # Re-write meta data
+        fout.seek(firmware_len + len(padding))
+        fout.write(meta)
+        # print(meta)
+
+    print('Summary:')
+    print('\tBase image ', firmware_len)
+    print('\tPadding    ', len(padding))
+    print('\tMeta       ', len(meta))
+    print('\tFilesystems', fs_total_len)
+    print('\tTotal size ', firmware_len + len(padding) + fs_total_len + len(meta))
+    print('\nFirmware for {} ready: ./{}\n'.format(cfg['name'], final_fn))
 
 
 def help():
     fn = sys.argv[0]
-    print '\nUtility to build / run / setup IOT platform device.\n'
-    print 'Usage: {} <command> <device path>\n'.format(fn)
-    print 'Where command is:'
-    print '\tbuild    - build image(s).'
-    print '\trun      - run device in emulation mode locally.'
-    print '\tsetup    - setup micropython environment to run device locally.\n'
-    print 'E.g.'
-    print '$ {} build devices/neopixel_controller\n'.format(fn)
+    print('\nUtility to build / run / setup IOT platform device.\n')
+    print('Usage: {} <command> <device path>\n'.format(fn))
+    print('Where command is:')
+    print('\tbuild    - build image(s).')
+    print('\trun      - run device in emulation mode locally.')
+    print('\tsetup    - setup micropython environment to run device locally.\n')
+    print('E.g.')
+    print('$ {} build devices/neopixel_controller\n'.format(fn))
 
 
 commands = {'run': run,
@@ -167,6 +248,6 @@ if __name__ == '__main__':
 
     cmd = sys.argv[1]
     if cmd not in commands:
-        print 'Unknown command "{}"'.format(cmd)
+        print('Unknown command "{}"'.format(cmd))
         quit(1)
     commands[cmd](cfg)
