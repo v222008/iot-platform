@@ -66,7 +66,7 @@ def main():
     dns = tinydns.Server(ttl=10)
 
     # WebServer
-    web = tinyweb.webserver()
+    web = tinyweb.webserver(debug=True)
 
     # Modules
     ambi = AmbientLightAnalogSensor(config, mqtt, machine.ADC(0))

@@ -13,7 +13,10 @@ import sys
 class RemoteStream(uio.IOBase):
     def __init__(self, hostname, ip, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.hostname = hostname.encode()
+        if isinstance(hostname, str):
+            self.hostname = hostname.encode()
+        else:
+            self.hostname = hostname
         self.addr = socket.getaddrinfo(ip, port)[0][-1]
         self.header = b'\x3c\x31\x33\x34\x3eJan 11 11:11:11 ' + self.hostname + b' python: '
         self.buf = [self.header]
@@ -32,13 +35,16 @@ class RemoteStream(uio.IOBase):
             if _msg[-1] == 10:
                 send = True
         if send:
+            # Print to console
+            for m in self.buf[1:]:
+                print(m.decode(), end='')
+            print()
             # Send message
             msg = b''.join(self.buf)
-            print(msg.decode())
             self.socket.sendto(msg, self.addr)
             # Reset buffer
             self.buf = [self.header]
-            gc.collect()
+        gc.collect()
 
 
 def config_cb():

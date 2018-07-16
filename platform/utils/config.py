@@ -219,8 +219,5 @@ class SimpleConfig():
         yield '}'
 
     def post(self, data):
-        try:
-            self.update(data)
-        except Exception as e:
-            return {'message': str(e)}, 400
-        return {'message': 'succeed'}
+        self.update(data)
+        return {'message': 'config updated'}
