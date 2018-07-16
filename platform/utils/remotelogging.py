@@ -58,18 +58,14 @@ class RemoteLogging():
                 name - system name (e.g. esp-010101)
                 config - SimpleConfig (from utils/config.py)
         """
-        config.add_param('remote_logging_ip', '',
-                         callback=self.callback,
-                         group='rlogging')
-        config.add_param('remote_logging_port', 0,
-                         callback=self.callback,
-                         group='rlogging')
+        config.add_param('remote_logging_on', False, callback=self.callback)
+        config.add_param('remote_logging_ip', 'localhost')
+        config.add_param('remote_logging_port', 514)
         self.cfg = config
         self.hostname = hostname
 
     def callback(self):
-        if self.cfg.remote_logging_port > 0 \
-                and self.cfg.remote_logging_ip != '':
+        if self.cfg.remote_logging_on:
             # Enable remote logging
             self.stream = RemoteStream(self.hostname,
                                        self.cfg.remote_logging_ip,
