@@ -44,19 +44,18 @@ def main():
     if hasattr(micropython, 'alloc_emergency_exception_buf'):
         micropython.alloc_emergency_exception_buf(100)
 
-    # Setup hostname
-    hostname = b'NeoPixelCtrl_%s' % platform.utils.mac_last_digits()
-
     loop = asyncio.get_event_loop()
     logging.basicConfig(level=logging.DEBUG)
 
     # Base config
     config = SimpleConfig()
     config.add_param('configured', False)
+    # Setup default hostname
+    config.hostname = 'NeoPixel_{}'.format(platform.utils.mac_last_digits())
     wsetup = WifiSetup(config)
 
     # Setup remote logging
-    RemoteLogging(hostname, config)
+    RemoteLogging(config)
 
     # MQTT
     mqtt = tinymqtt.MQTTClient('neopixelcontroller-{}'.format(
@@ -107,7 +106,7 @@ def main():
     # Setup AP parameters
     ap_if = network.WLAN(network.AP_IF)
     ap_if.active(True)
-    ap_if.config(essid=hostname, authmode=network.AUTH_WPA_WPA2_PSK, password=b'neopixel')
+    ap_if.config(essid=config.hostname, authmode=network.AUTH_WPA_WPA2_PSK, password=b'neopixel')
     ap_if.ifconfig(('192.168.168.1', '255.255.255.0', '192.168.168.1', '192.168.168.1'))
     ap_if.active(False)
 

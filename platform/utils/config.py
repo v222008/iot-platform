@@ -53,6 +53,8 @@ class SimpleConfig():
         self._validators = {}
         self._callbacks = {}
         self._group_callbacks = {}
+        # Mandatory parameters
+        self.add_param('hostname', 'unknown')
 
     def validate_value(self, name, value):
         # if len(value) > 192:

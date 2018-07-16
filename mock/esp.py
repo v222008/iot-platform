@@ -3,10 +3,10 @@ MIT license
 (C) Konstantin Belyalov 2017-2018
 """
 
-BLOCKS = 10
+BLOCKS = 22
 BLOCK_SIZE = 4096
 
-fmemory = bytearray(BLOCKS * BLOCK_SIZE)
+fmemory = bytearray([0xff] * BLOCKS * BLOCK_SIZE)
 
 
 def neopixel_write(*args):

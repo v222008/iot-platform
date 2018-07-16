@@ -52,22 +52,20 @@ def config_cb():
 
 
 class RemoteLogging():
-    def __init__(self, hostname, config):
+    def __init__(self, config):
         """Enable Remote Logging to rsyslog as well as to console
             Arguments:
-                name - system name (e.g. esp-010101)
                 config - SimpleConfig (from utils/config.py)
         """
         config.add_param('remote_logging_on', False, callback=self.callback)
         config.add_param('remote_logging_ip', 'localhost')
         config.add_param('remote_logging_port', 514)
         self.cfg = config
-        self.hostname = hostname
 
     def callback(self):
         if self.cfg.remote_logging_on:
             # Enable remote logging
-            self.stream = RemoteStream(self.hostname,
+            self.stream = RemoteStream(self.cfg.hostname,
                                        self.cfg.remote_logging_ip,
                                        self.cfg.remote_logging_port)
             logging._stream = self.stream
