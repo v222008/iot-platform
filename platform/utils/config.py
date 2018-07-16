@@ -57,8 +57,6 @@ class SimpleConfig():
         self.add_param('hostname', 'unknown')
 
     def validate_value(self, name, value):
-        # if len(value) > 192:
-        #     raise ConfigError("Value too long")
         if name in self._validators:
             self._validators[name](name, value)
 
@@ -97,39 +95,57 @@ class SimpleConfig():
         offset = CONFIG_BLOCK * BLOCK_SIZE
         # metadata, bytes:
         # 0: name len
-        # 1: value len
-        # 2: type
-        # 3: chksum (sum of name + value + type + chksum itself)
-        meta = bytearray(4)
-        print()
+        # 1: type
+        # 2: chksum (sum of name + type)
+        meta = bytearray(3)
         while True:
             esp.flash_read(offset, meta)
-            offset += 4
+            offset += 3
             # All 0xff indicates end of list
-            if meta == b'\xff\xff\xff\xff':
+            if meta == b'\xff\xff\xff':
                 break
-            if sum(meta[:3]) != meta[3]:
+            if sum(meta[:2]) != meta[2]:
                 raise ConfigError('Malformed config')
             # read param name
             buf = bytearray(meta[0])
             esp.flash_read(offset, buf)
-            offset += meta[0] + (4 - meta[0] % 4)
+            offset += meta[0]
             name = bytes(buf).decode()
             # read value
-            buf = bytearray(meta[1])
-            esp.flash_read(offset, buf)
-            if meta[2] == 1:
+            if meta[1] == 1:
+                # type int
+                buf = bytearray(4)
+                esp.flash_read(offset, buf)
+                offset += 4
                 value = int.from_bytes(buf, 'big')
                 # Respect sign
                 if value > 0x7FFFFFFF:
                     value -= 0x100000000
-                offset += 4
-            elif meta[2] == 2:
-                value = bytes(buf).decode()
-                offset += meta[1] + (4 - meta[1] % 4)
-            else:
+            elif meta[1] == 2:
+                # type string
+                # read len
+                buf = bytearray(1)
+                esp.flash_read(offset, buf)
+                offset += 1
+                # read value
+                if buf[0] > 0:
+                    val = bytearray(buf[0])
+                    esp.flash_read(offset, val)
+                    value = bytes(val).decode()
+                else:
+                    value = ''
+                offset += buf[0]
+            elif meta[1] == 3:
+                # type bool
+                buf = bytearray(1)
+                esp.flash_read(offset, buf)
                 value = bool(buf[0])
-                offset += 4
+                offset += 1
+            elif meta[1] == 4:
+                # None
+                value = None
+            else:
+                raise ConfigError('Unknown {} value type'.format(meta[2]))
             validate_name(name)
             validate_value_type(value)
             self.validate_value(name, value)
@@ -137,51 +153,62 @@ class SimpleConfig():
         gc.collect()
 
     def save(self):
-        """Save config (all sections) into file."""
+        """Save config (all sections) into file.
+        Returns current size of config
+        """
         esp.flash_erase(CONFIG_BLOCK)
-        start = CONFIG_BLOCK * BLOCK_SIZE
-        offset = start
 
-        meta = bytearray(4)
+        meta = bytearray(3)
+        sector = bytearray()
         for k, v in self.__dict__.items():
             # skip class variables
             if k.startswith('_'):
                 continue
-            if isinstance(v, int):
-                data = v.to_bytes(4, 'big')
-                meta[1] = 4
-                meta[2] = 1
-            elif isinstance(v, str):
-                meta[1] = len(v)
-                meta[2] = 2
-                # add padding to value
-                data = v.encode() + '\x00' * (4 - (len(v) % 4))
-            else:
-                meta[1] = 4
-                meta[2] = 3
-                if v:
-                    data = b'\x01\x00\x00\x00'
-                else:
-                    data = b'\x00\x00\x00\x00'
+            gc.collect()
             # metadata, bytes:
             # 0: name len
-            # 1: value len
-            # 2: type
-            # 3: chksum (sum of name + value + type + chksum itself)
+            # 1: type
+            # 2: chksum (sum of name + type)
+            # Param name len
             meta[0] = len(k)
-            meta[3] = sum(meta[:3])
-            esp.flash_write(offset, meta)
-            offset += 4
-            # add padding to name
-            name = k.encode() + '\x00' * (4 - (len(k) % 4))
-            esp.flash_write(offset, name)
-            offset += len(name)
-            esp.flash_write(offset, data)
-            offset += len(data)
-            # Entire config should be less than 1 block (~4096)
-            if offset - start > 4000:
-                raise ConfigError('config is too large')
-        gc.collect()
+            if isinstance(v, int):
+                # type int
+                meta[1] = 1
+                data = v.to_bytes(4, 'big')
+            elif isinstance(v, str):
+                # type str
+                vlen = len(v)
+                if vlen > 255:
+                    raise ConfigError('String value too long: {}'.format(k))
+                meta[1] = 2
+                data = bytearray(vlen + 1)
+                data[0] = vlen
+                data[1:] = v.encode()
+            elif isinstance(v, bool):
+                # type bool
+                meta[1] = 3
+                data = bytearray(1)
+                data[0] = int(v)
+            elif v is None:
+                # None
+                data = None
+                meta[1] = 4
+            else:
+                raise ConfigError("Unsupported type {}".format(type(v)))
+            meta[2] = sum(meta[:2])
+            sector += meta
+            sector += k.encode()
+            # add data, if non zero / none
+            if data is not None and len(data) > 0:
+                sector += data
+        sec_len = len(sector)
+        if sec_len > 4000:
+            raise ConfigError('config is too large')
+        # Add padding - esp.flash_write() requires block to be modulo 4
+        if sec_len % 4 != 0:
+            sector += b'\xff' * (sec_len % 4)
+        esp.flash_write(CONFIG_BLOCK * BLOCK_SIZE, sector)
+        return len(sector)
 
     def update(self, params):
         """Update single parameter"""

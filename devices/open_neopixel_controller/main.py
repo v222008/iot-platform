@@ -58,7 +58,7 @@ def main():
     RemoteLogging(config)
 
     # MQTT
-    mqtt = tinymqtt.MQTTClient('neopixelcontroller-{}'.format(
+    mqtt = tinymqtt.MQTTClient('neopixelcontroller-{:s}'.format(
         platform.utils.mac_last_digits()), config=config)
 
     # DNS
