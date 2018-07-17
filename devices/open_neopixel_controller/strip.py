@@ -1,12 +1,11 @@
 """
-Neopixel Controller
+Open Neopixel Controller
 
 MIT license
 (C) Konstantin Belyalov 2017-2018
 """
 import logging
 import ujson as json
-import sys
 from platform.led.neopixel import Neopixel
 
 
@@ -37,12 +36,18 @@ class NeopixelStrip(Neopixel):
         """Callback when mqtt control topic changed"""
         self.mqtt.subscribe(self.cfg.mqtt_topic_led_control, self.mqtt_control)
 
-    def publish_mqtt_state(self):
-        val = 0
+    def state(self):
+        """Returns current binary state of led strip:
+        0 - off
+        1 - on
+        """
         for c in self.buf:
             if c > 0:
-                val = 1
-                break
+                return 1
+        return 0
+
+    def publish_mqtt_state(self):
+        val = self.state()
         self.mqtt.publish(self.cfg.mqtt_topic_led_status, str(val), retain=True)
 
     def on(self, data):
