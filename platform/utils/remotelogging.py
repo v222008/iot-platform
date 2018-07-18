@@ -39,9 +39,12 @@ class RemoteStream(uio.IOBase):
             for m in self.buf[1:]:
                 print(m.decode(), end='')
             print()
-            # Send message
-            msg = b''.join(self.buf)
-            self.socket.sendto(msg, self.addr)
+            # Send message, ignore any errors
+            try:
+                msg = b''.join(self.buf)
+                self.socket.sendto(msg, self.addr)
+            except Exception:
+                pass
             # Reset buffer
             self.buf = [self.header]
         gc.collect()
@@ -69,6 +72,9 @@ class RemoteLogging():
                                        self.cfg.remote_logging_ip,
                                        self.cfg.remote_logging_port)
             logging._stream = self.stream
+            print('Remote logging enabled to {}:{}'.format(self.cfg.remote_logging_ip,
+                                                           self.cfg.remote_logging_port))
         else:
             # Disable
+            print('Remote logging disabled')
             logging._stream = sys.stderr

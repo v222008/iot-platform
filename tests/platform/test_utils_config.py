@@ -69,16 +69,21 @@ class ConfigTests(unittest.TestCase):
         self.cfg.add_param('blah_str_zero', default='')
         self.cfg.add_param('blah3', default=True)
         self.cfg.add_param('blah33', default=False)
+        self.cfg.add_param('cb', default=1)
         self.cfg.save()
         jstr1 = [x for x in self.cfg.get({})]
         data1 = ujson.loads(''.join(jstr1))
 
         # Create another config instance and load it from previously saved config.
         cfg2 = SimpleConfig(autosave=False)
+        # Add the same parameter to ensure that param's callback will be triggered
+        cfg2.add_param('cb', default=1, callback=self.cb1)
         cfg2.load()
         jstr2 = [x for x in cfg2.get({})]
         data2 = ujson.loads(''.join(jstr2))
         self.assertEqual(data1, data2)
+        # ensure that callback triggered during load
+        self.assertEqual(self.cb1_fired, 1)
 
     def testValueType(self):
         self.cfg.add_param('blah1', default=1)

@@ -54,10 +54,10 @@ class App():
         # Base config
         self.config = SimpleConfig()
         self.config.add_param('configured', False)
-        self.config.hostname = 'neopixel_{:s}'.format(
-            platform.utils.mac_last_digits())
+        self.config.add_param('hostname',
+                              'neopixel_{:s}'.format(platform.utils.mac_last_digits()))
         # Setup remote logging
-        RemoteLogging(self.config)
+        self.rlogging = RemoteLogging(self.config)
         # MQTT
         self.mqtt = tinymqtt.MQTTClient('neopixelctrl-{:s}'.format(
             platform.utils.mac_last_digits()), config=self.config)

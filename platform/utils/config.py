@@ -53,8 +53,6 @@ class SimpleConfig():
         self._validators = {}
         self._callbacks = {}
         self._group_callbacks = {}
-        # Mandatory parameters
-        self.add_param('hostname', 'unknown')
 
     def validate_value(self, name, value):
         if name in self._validators:
@@ -151,6 +149,9 @@ class SimpleConfig():
             self.validate_value(name, value)
             setattr(self, name, value)
         gc.collect()
+        # Run callbacks
+        self.run_callbacks([x for x in self.__dict__.keys() if not x.startswith('_')])
+        gc.collect()
 
     def save(self):
         """Save config (all sections) into file.
@@ -220,7 +221,7 @@ class SimpleConfig():
                 raise ConfigError("Param {} doesn't exists".format(name))
             validate_value_type(value)
             if type(value) != type(getattr(self, name)):  # noqa
-                raise ConfigError("Invalid value type (str/int/etc)")
+                raise ConfigError("Invalid value type for {}".format(name))
             self.validate_value(name, value)
         # Update values
         for name, value in params.items():
