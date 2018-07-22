@@ -1,0 +1,19 @@
+
+name: open_wifi_switch
+main: main.py
+build_dir: _build_wifi_switch
+
+frozen:
+  - platform/utils
+  - platform/switch/relay.py
+  - platform/led/status.py
+
+packages:
+  - deps/tinyweb/tinyweb
+  - deps/tinymqtt/tinymqtt
+
+micropython-lib:
+  - uasyncio
+  - uasyncio.core
+  - uasyncio.synchro
+  - logging
