@@ -56,9 +56,16 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(self.cfg.cb, 200)
         # .. and callback was called
         self.assertEqual(self.cb1_fired, 1)
+        # Check value() method
+        self.assertEqual(self.cfg.value('blah1'), 11)
         # final check
         exp = {"blah2": "22", "cb": 200, "blah3": False, "blah1": 11}
         self.assertParams(exp)
+
+    def testSanityNegative(self):
+        # Non existing parameter
+        with self.assertRaises(ConfigError):
+            self.cfg.value('fsfsdfds')
 
     def testSaveLoad(self):
         self.cfg.add_param('blah0', default=0)

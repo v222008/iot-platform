@@ -228,6 +228,12 @@ class SimpleConfig():
         if self._autosave:
             self.save()
 
+    def value(self, name):
+        """Simply returns value of parameter"""
+        if name not in self.__dict__:
+            raise ConfigError("Param {} doesn't exists".format(name))
+        return self.__dict__[name]
+
     async def get(self, data):
         """Returns JSON representation of config"""
         yield '{'

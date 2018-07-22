@@ -38,7 +38,7 @@ class Relay():
 
     def mqtt_config_changed(self):
         """Callback when mqtt control topic changed"""
-        self.mqtt.subscribe(self.cfg.__dict__['mqtt_topic_relay{}_control'.format(self.num)],
+        self.mqtt.subscribe(self.cfg.value('mqtt_topic_relay{}_control'.format(self.num)),
                             self.mqtt_control)
 
     def change_state(self, _state):
@@ -48,7 +48,7 @@ class Relay():
         self.pin.value(self.state)
         log.info('Relay{} turned {}'.format(self.num, onoff[self.state]))
         # publish update to mqtt
-        self.mqtt.publish(self.cfg.__dict__['mqtt_topic_relay{}_status'.format(self.num)],
+        self.mqtt.publish(self.cfg.value('mqtt_topic_relay{}_status'.format(self.num)),
                           str(self.state),
                           retain=True)
 
