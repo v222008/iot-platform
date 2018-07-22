@@ -237,7 +237,7 @@ class SimpleConfig():
             if k.startswith('_'):
                 continue
             if isinstance(v, bool):
-                yield '{}"{}":{:b}'.format(comma, k, v)
+                yield '{}"{}":{}'.format(comma, k, str(v).lower())
             elif isinstance(v, int):
                 yield '{}"{}":{}'.format(comma, k, v)
             else:
