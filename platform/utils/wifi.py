@@ -36,14 +36,9 @@ def convert_mac(mac):
     return '-'.join(hmac[i:i + 2] for i in range(0, len(hmac), 2))
 
 
-def validate_non_empty(name, value):
-    if value == '':
-        raise ValueError('{} cannot be empty.'.format(name))
-
-
 def validate_wifi_mode(name, value):
     if value not in wifi_modes[1:]:
-        raise ValueError('Invalid WiFi mode. Valid values are {}'.format(wifi_modes[1:]))
+        raise ValueError('Invalid WiFi mode')
 
 
 class WifiSetup():
@@ -72,16 +67,13 @@ class WifiSetup():
     def ssid_changed(self):
         """Config callback when either ssid or password changed"""
         if self.cfg.wifi_ssid == '':
-            log.debug("WiFi station disabled")
             self.sta_if.active(False)
         else:
-            log.debug("WiFi enabled, connecting to ssid '{}'".format(self.cfg.wifi_ssid))
             self.sta_if.active(True)
             self.sta_if.connect(self.cfg.wifi_ssid, self.cfg.wifi_password)
 
     def mode_changed(self):
         """Config callback for wifi mode change"""
-        log.debug('mode changed to {}'.format(self.cfg.wifi_mode))
         network.phy_mode(wifi_modes.index(self.cfg.wifi_mode))
 
     async def get(self, data):
@@ -90,8 +82,8 @@ class WifiSetup():
             status = statuses[self.sta_if.status()]
         else:
             status = statuses[0]
-        yield '{{"connected":{},"mac":"{}","mode":"{}","status":"{}"'.format(
-            int(self.sta_if.isconnected()),
+        yield '{{"connected":{:d},"mac":"{}","mode":"{}","status":"{}"'.format(
+            self.sta_if.isconnected(),
             convert_mac(self.sta_if.config('mac')),
             wifi_modes[network.phy_mode()],
             status)

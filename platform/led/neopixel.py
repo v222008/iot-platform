@@ -14,12 +14,12 @@ import uasyncio as asyncio
 
 def validator_cnt(name, value):
     if value not in range(1, 501):
-        raise ValueError('Invalid neopixel LED count (1-500 supported)')
+        raise ValueError('Invalid config')
 
 
 def validator_colors(name, value):
     if value not in [3, 4]:
-        raise ValueError('Invalid neopixel color count (valid 3 or 4)')
+        raise ValueError('Invalid config')
 
 
 class Neopixel():
@@ -53,7 +53,7 @@ class Neopixel():
                     hexcolor = hexcolor[1:]
                 bcolor = int(hexcolor, 16).to_bytes(4, 'big')
             except ValueError:
-                raise ValueError('Invalid color format.')
+                raise ValueError('Invalid color')
             # All pixels
             if leds.lower() == 'all':
                 parsed.append((range(self.cnt), bcolor))
@@ -62,16 +62,16 @@ class Neopixel():
             if '-' in leds:
                 arr = leds.split('-')
                 if len(arr) > 2 or not arr[0].isdigit() or not arr[1].isdigit():
-                    raise ValueError('Invalid range format')
+                    raise ValueError('Invalid range')
                 r1 = int(arr[0])
                 r2 = int(arr[1])
             elif leds.isdigit():
                 r1 = int(leds)
                 r2 = r1
             else:
-                raise ValueError('Invalid color format')
+                raise ValueError('Invalid color')
             if r1 < 1:
-                raise ValueError('Invalid range format')
+                raise ValueError('Invalid range')
             parsed.append((range(r1 - 1, r2), bcolor))
         return parsed
 
@@ -137,7 +137,6 @@ class Neopixel():
             callback()
 
     def fade_effect(self, pixels, length=5, delay=50, callback=None):
-        print("fe", pixels)
         if self.anim:
             asyncio.cancel(self.anim)
         self.loop.create_task(self.__fade_effect(self.parse_pixels_format(pixels),

@@ -23,6 +23,7 @@ from platform.sensor.ambient import AmbientLightAnalogSensor
 
 from strip import NeopixelStrip
 
+
 neopixel_pin = const(4)
 setup_btn_pin = const(5)
 status_led_pin = const(10)
@@ -36,9 +37,9 @@ class Status():
         """Returns current status"""
         yield '{"wifi":'
         yield from self.app.wifi.get(data)
-        yield ',"sensor": {"light":%s},' % self.app.ambi.last_value
-        yield '"memory":{"allocated":%s,"free":%s},' % (gc.mem_alloc(), gc.mem_free())
-        yield '"led": {"state":%d}}' % (self.app.neo.state())
+        yield ',"sensor": {{"light":{}}},'.format(self.app.ambi.last_value)
+        yield '"memory":{{"allocated":{},"free":{}}},'.format(gc.mem_alloc(), gc.mem_free())
+        yield '"led": {{"state":{:d}}}}}'.format(self.app.neo.state())
 
 
 class App():
@@ -68,7 +69,7 @@ class App():
         self.setupbtn = SetupButton(self.config, machine.Pin(setup_btn_pin))
         self.status = StatusLed(self.config, machine.Pin(status_led_pin))
         # WebServer
-        self.web = tinyweb.webserver(debug=True)
+        self.web = tinyweb.webserver(max_concurrency=1, debug=True)
         # LED strip handler (+ associated web routes)
         self.neo = NeopixelStrip(machine.Pin(neopixel_pin),
                                  self.config,
@@ -91,28 +92,20 @@ class App():
 
     def setup_routes(self):
         @self.web.route('/')
-        async def index(self, req, resp):
-            if self.config.configured:
-                await resp.redirect('/dashboard')
-            else:
-                await resp.redirect('/setup')
-
-        @self.web.route('/dashboard')
-        async def page_dashboard(req, resp):
-            await resp.send_file('dashboard_all.html.gz',
+        async def index(req, resp):
+            await resp.send_file('web/index.html.gz',
                                  content_encoding='gzip',
                                  content_type='text/html')
 
-        @self.web.route('/setup')
-        async def page_setup(req, resp):
-            await resp.send_file('setup_all.html.gz',
+        @self.web.route('/fonts/<fn>')
+        async def fonts(req, resp, fn):
+            await resp.send_file('web/fonts/{}.gz'.format(fn),
                                  content_encoding='gzip',
-                                 content_type='text/html')
+                                 content_type='font/{}'.format(fn.split(".")[-1]))
 
         @self.web.route('/restart')
         @self.web.route('/reset')
         async def page_restart(req, resp):
-            self.log.warning('Restart requested from WEB')
             machine.reset()
 
         # REST API pages
@@ -126,7 +119,9 @@ class App():
         try:
             self.config.load()
         except Exception as e:
-            self.log.warning('Config load failed: {}'.format(e))
+            # Don't care in case of config load failed.
+            # E.g. it may happen on first boot
+            pass
 
         wport = 80
         dport = 53
@@ -144,6 +139,5 @@ class App():
     def stop(self):
         if not platform.utils.is_emulator():
             return
-        self.log.info('terminating...')
         for s in [self.web, self.dns, self.mqtt, self.ambi, self.setupbtn, self.status]:
             s.shutdown()

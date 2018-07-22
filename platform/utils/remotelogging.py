@@ -72,9 +72,6 @@ class RemoteLogging():
                                        self.cfg.remote_logging_ip,
                                        self.cfg.remote_logging_port)
             logging._stream = self.stream
-            print('Remote logging enabled to {}:{}'.format(self.cfg.remote_logging_ip,
-                                                           self.cfg.remote_logging_port))
         else:
             # Disable
-            print('Remote logging disabled')
             logging._stream = sys.stderr

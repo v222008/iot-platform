@@ -18,12 +18,8 @@ class ConfigError(Exception):
 
 
 def validate_name(name):
-    if len(name) > 32:
-        raise ConfigError('Name too long')
-    if name.startswith('_'):
-        raise ConfigError('Name shouldnt start with underscore')
-    if ' ' in name:
-        raise ConfigError('Spaces arent allowed in name')
+    if len(name) > 32 or name.startswith('_') or ' ' in name:
+        raise ConfigError('Invalid name')
 
 
 def validate_value_type(value):
@@ -36,7 +32,7 @@ def validate_value_type(value):
     elif value is None:
         return
     else:
-        raise ConfigError('Unsupported default value type')
+        raise ConfigError('Unsupported type')
 
 
 class SimpleConfig():
@@ -73,7 +69,7 @@ class SimpleConfig():
         validate_value_type(default)
         # Check for duplicates
         if name in self.__dict__:
-            raise ConfigError('Param {} already exists'.format(name))
+            raise ConfigError('Param exists')
         # Validate default value
         if validator:
             validator(name, default)
@@ -103,7 +99,7 @@ class SimpleConfig():
             if meta == b'\xff\xff\xff':
                 break
             if sum(meta[:2]) != meta[2]:
-                raise ConfigError('Malformed config')
+                raise ConfigError('Malformed')
             # read param name
             buf = bytearray(meta[0])
             esp.flash_read(offset, buf)
@@ -143,7 +139,7 @@ class SimpleConfig():
                 # None
                 value = None
             else:
-                raise ConfigError('Unknown {} value type'.format(meta[2]))
+                raise ConfigError('Unsupported type')
             validate_name(name)
             validate_value_type(value)
             self.validate_value(name, value)
@@ -180,7 +176,7 @@ class SimpleConfig():
                 # type str
                 vlen = len(v)
                 if vlen > 255:
-                    raise ConfigError('String value too long: {}'.format(k))
+                    raise ConfigError('Too big: {}'.format(k))
                 meta[1] = 2
                 data = bytearray(vlen + 1)
                 data[0] = vlen
@@ -204,11 +200,12 @@ class SimpleConfig():
                 sector += data
         sec_len = len(sector)
         if sec_len > 4000:
-            raise ConfigError('config is too large')
+            raise ConfigError('Too large')
         # Add padding - esp.flash_write() requires block to be modulo 4
         if sec_len % 4 != 0:
-            sector += b'\xff' * (sec_len % 4)
+            sector += b'\xff' * (4 - sec_len % 4)
         esp.flash_write(CONFIG_BLOCK * BLOCK_SIZE, sector)
+        gc.collect()
         return len(sector)
 
     def update(self, params):
@@ -250,4 +247,4 @@ class SimpleConfig():
 
     def post(self, data):
         self.update(data)
-        return {'message': 'config updated'}
+        return {'message': 'OK'}

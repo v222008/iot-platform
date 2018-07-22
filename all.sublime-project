@@ -15,7 +15,7 @@
 			[
 				"deps",
 				"build",
-				"_build"
+				"_build_*"
 			],
 			"path": "."
 		},

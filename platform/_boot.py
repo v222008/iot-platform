@@ -44,8 +44,6 @@ uos.dupterm(machine.UART(0, 115200), 1)
 # Disable OS debug messages
 # esp.osdebug(None)
 
-print("\n\nBooting IOT platform....")
-
 # Read FS metadata
 meta_off = META_SECTOR * SEC_SIZE
 while True:
@@ -60,7 +58,6 @@ while True:
     fs_start = int.from_bytes(buf[16:20], 'big')
     fs_len = int.from_bytes(buf[20:24], 'big')
     readonly = bool(buf[25])
-    print('Mount: "{}" start sec {}, length {}, readonly={}'.format(mpoint, fs_start, fs_len, readonly))
     # Mount filesystem
     flash = FlashBlockDev(fs_start, fs_len)
     uos.mount(flash, mpoint, readonly=readonly)
@@ -81,5 +78,5 @@ except KeyboardInterrupt:
     # Allow terminate execution by Ctrl+C - REPR will be activated
     pass
 except Exception as e:
-    log.exc(e, "main.main() unhandled exception, resetting device")
+    log.exc(e, "")
     machine.reset()

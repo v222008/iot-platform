@@ -9,7 +9,7 @@ import uasyncio as asyncio
 import utime as time
 
 
-log = logging.getLogger('SETUP_BTN')
+log = logging.getLogger('BTN')
 
 
 class SetupButton():
@@ -54,27 +54,23 @@ class SetupButton():
                         # Cleanup ISR event
                         self.button_pressed = False
                         self.button_released = False
-                        log.info("Setup button pressed, entering setup mode...")
                         self.cfg.configured = False
                 # Turn on AP if device went into unconfigured mode
                 # or user has pressed setup button
                 if not self.cfg.configured and not self.ap_activated:
-                    log.info('Unconfigured system, WiFi AP enabled')
                     self.ap_if.active(True)
                     self.ap_activated = True
                 # Turn off AP when device has been successfully configured
                 if self.cfg.configured and self.ap_if.active():
                     self.ap_if.active(False)
                     self.ap_activated = False
-                    log.info('System has been configured, WiFi AP disabled')
                 # Schedule next run in 1 sec
                 await asyncio.sleep(1)
             except asyncio.CancelledError:
                 # Coroutine has been canceled
-                log.debug("SetupButton stopped")
                 return
             except Exception as e:
-                log.exc(e, "Unhandled exception")
+                log.exc(e, "")
 
     def run(self, loop):
         self.loop = loop

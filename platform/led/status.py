@@ -6,7 +6,7 @@ import logging
 import uasyncio as asyncio
 
 
-log = logging.getLogger('STATUS_LED')
+log = logging.getLogger('LED')
 
 
 class StatusLed():
@@ -35,10 +35,9 @@ class StatusLed():
                     await asyncio.sleep(1)
             except asyncio.CancelledError:
                 # Coroutine has been canceled
-                log.debug("StatusLED stopped")
                 return
             except Exception as e:
-                log.exc(e, "Unhandled exception")
+                log.exc(e, "")
 
     def run(self, loop):
         self.loop = loop

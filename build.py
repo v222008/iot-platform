@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import glob
 import shutil
 import re
 import errno
@@ -102,6 +103,56 @@ def run(cfg):
     shell_run(cmd)
 
 
+def process_ui_vuetify(mount_point, fat_fn, fscfg):
+    print('Compiling Vue UI application...')
+    uipath = fscfg['ui-vuetify']
+    shell_run('cd {} && npm run build'.format(uipath))
+    # Copy dist folder into build_root
+    build_dst = os.path.join(os.path.dirname(fat_fn))
+    dest_dir = build_dst + mount_point
+    shutil.rmtree(dest_dir, ignore_errors=True)
+    shell_run('cp -rf {}/ {}'.format(os.path.join(uipath, 'dist'), dest_dir))
+    # Embed css/js right into html - this will save load time
+    # Reading original file from ui dir
+    with open(os.path.join(uipath, 'public', 'index.html'), 'r') as fin:
+        lines = fin.readlines()
+    # Write changes into _build dir
+    indexfile = os.path.join(dest_dir, 'index.html')
+    with open(indexfile, 'w') as fout:
+        for line in lines:
+            # remove refs to css / js
+            m = re.search('<link.+[css|js]\/app', line)
+            if m:
+                continue
+            fout.write(line)
+            if '<title>' in line:
+                fcss = glob.glob(os.path.join(uipath, 'dist/css/*.css'))[0]
+                print("\tInjecting CSS", fcss)
+                with open(fcss, 'r') as css:
+                    fout.write('<style>\n')
+                    fout.write(css.read())
+                    fout.write('</style>\n')
+            if '</body>' in line:
+                fjs = glob.glob(os.path.join(uipath, 'dist/js/*.js'))[0]
+                print('\tInjecting JS', fjs)
+                with open(fjs, 'r') as js:
+                    fout.write('<script>\n')
+                    fout.write(js.read())
+                    fout.write('</script>\n')
+    # Remove unwanted files from vue build folder
+    for f in glob.glob(os.path.join(dest_dir, '**/*.*'), recursive=True):
+        name, ext = os.path.splitext(f)
+        # delete unwanted files
+        if ext in ['.css', '.map', '.js']:
+            os.remove(f)
+            continue
+        # pre gzip files - to save flash and improve web app performance
+        if fscfg.get('gzip', True):
+            shell_run('gzip -f --best --no-name {}'.format(f))
+    shell_run('MTOOLS_SKIP_CHECK=1 mcopy -s -i {} {}/* ::/'.format(fat_fn, dest_dir))
+    print()
+
+
 def build(cfg):
     build_dir = cfg.get('build_dir', '_build')
     # Copy everything which needs to be frozen
@@ -164,8 +215,9 @@ def build(cfg):
         # Add filesystems
         meta_off = 0  # offset in metadata
         fs_sect = data_flash_start // sec_size + 1
+        print()
         for mount_point, fscfg in cfg.get('filesystems', {}).items():
-            print('processing', mount_point)
+            print('Creating filesystem {}'.format(mount_point))
             if len(mount_point) > 16:
                 print("Mount point '{}' too long".format(mount_point))
                 quit(1)
@@ -174,8 +226,15 @@ def build(cfg):
             # Create FAT
             fat_fn = os.path.join(build_dir, mount_point[1:] + '.vfat')
             shutil.copy2(fs_empty_fn, fat_fn)
-            for f in fscfg.get('files', []):
-                shell_run('MTOOLS_SKIP_CHECK=1 mcopy -s -i %s %s ::/' % (fat_fn, os.path.join(cfg['_path'], f)))
+            # If this is special types like "ui-vuetify" this requires some
+            # proprocessing
+            if 'ui-vuetify' in fscfg:
+                process_ui_vuetify(mount_point, fat_fn, fscfg)
+            if 'files' in fscfg:
+                for f in fscfg['files']:
+                    print('\t', f)
+                    shell_run('MTOOLS_SKIP_CHECK=1 mcopy -s -i {} {} ::/{}'.format(fat_fn, f, f))
+            print('\n{} summary:'.format(mount_point))
             # Fill meta with final FS information
             fs_len = os.stat(fat_fn).st_size
             # Final len includes: reserve space + padding

@@ -80,18 +80,18 @@ class NeopixelStrip(Neopixel):
     def process_command(self, data, action):
         # by default - all pixels
         if not hasattr(self, action):
-            raise StripError('No such effect {}'.format(action))
+            raise StripError('Not found {}'.format(action))
         act = getattr(self, action)
         act(data)
 
     def post(self, data, action):
         try:
             self.process_command(data, action)
-            return {'message': 'color changed'}
+            return {'message': 'OK'}
         except StripError as e:
             return {'message': e}, 404
         except Exception as e:
-            log.exc(e, "Unhandled exception")
+            log.exc(e, "")
 
     def get(self, data, action):
         return self.post(data, action)
@@ -102,4 +102,4 @@ class NeopixelStrip(Neopixel):
             act = js.get('effect', 'fade')
             self.process_command(js, act)
         except Exception as e:
-            log.exc(e, "Unhandled exception")
+            log.exc(e, "")

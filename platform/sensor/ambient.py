@@ -24,7 +24,7 @@ class AmbientLightAnalogSensor():
         self.cfg = config
         self.cfg.add_param('mqtt_topic_sensor_light', 'neopixel/sensor/light')
         self.cfg.add_param('sensor_ambient_interval', 60)
-        self.cfg.add_param('sensor_ambient_threshold', 25)
+        self.cfg.add_param('sensor_ambient_threshold', 10)
 
     async def _handler(self):
         while True:
@@ -32,16 +32,14 @@ class AmbientLightAnalogSensor():
                 value = self.sensor.read()
                 diff = abs(value - self.last_value)
                 if diff > self.cfg.sensor_ambient_threshold:
-                    log.debug('Light level changed by {} to {}, publishing...'.format(diff, value))
                     self.mqtt.publish(self.cfg.mqtt_topic_sensor_light, str(value), retain=True)
                 self.last_value = value
                 await asyncio.sleep(self.cfg.sensor_ambient_interval)
             except asyncio.CancelledError:
                 # Coroutine has been canceled
-                log.debug("AmbientAnalogSensor stopped")
                 return
             except Exception as e:
-                log.exc(e, "Unhandled exception")
+                log.exc(e, "")
 
     def run(self, loop):
         self.loop = loop

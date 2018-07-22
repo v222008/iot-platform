@@ -22,13 +22,13 @@ micropython-lib:
   - logging
 
 # As an example for now
-# filesystems:
-#   /web:
-#     files:
-#       - README.md
-#     readonly: true
-#     reserved: 10000
+filesystems:
+  /web:
+    ui-vuetify: ui/devices/open_neopixel_controller
+    readonly: true
+    gzip: true
 
-#   /shit:
+#   /data:
 #     files:
 #       - config.yaml
+#     reserved: 10000
