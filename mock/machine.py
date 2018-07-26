@@ -41,13 +41,15 @@ class Pin():
     OUT = 1
     IRQ_FALLING = 2
     IRQ_RISING = 3
+    PULL_UP = 4
+    PULL_DOWN = 5
 
     def __init__(self, *args):
         self.idx = args[0]
         if self.idx not in pinvals:
             pinvals[self.idx] = 0
 
-    def init(self, *args):
+    def init(self, *args, **kwargs):
         pass
 
     def on(self):

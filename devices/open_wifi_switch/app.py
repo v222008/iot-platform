@@ -13,6 +13,7 @@ import tinyweb
 import tinymqtt
 
 from platform.switch.relay import Relay
+from platform.sensor.binary import BinarySensor
 from platform.led.status import StatusLed
 from platform.utils import mac_last_digits, is_emulator
 from platform.utils.config import SimpleConfig
@@ -24,6 +25,8 @@ from platform.utils.remotelogging import RemoteLogging
 status_led_pin = const(13)
 # Relay PINs
 relays_pins = [12, 14]
+# User binary sensor
+binary_sensor_pins = [10, 9, 4]
 
 
 class Status():
@@ -74,6 +77,15 @@ class App():
                                      self.config,
                                      self.web,
                                      self.mqtt))
+        # Binary Sensors (user GPIO - currently only GPIO)
+        self.binary_sensors = []
+        for num, pin in enumerate(binary_sensor_pins):
+            pname = 'mqtt_binary_sensor{}_status'.format(num + 1)
+            self.config.add_param(pname, 'binary_sensor{}'.format(num + 1))
+            self.binary_sensors.append(BinarySensor(machine.Pin(pin),
+                                                    self.config,
+                                                    self.mqtt,
+                                                    pname))
 
     def setup_wifi(self):
         # Setup AP parameters
@@ -118,6 +130,8 @@ class App():
         self.mqtt.run(self.loop)
         # self.setupbtn.run(self.loop)
         self.status.run(self.loop)
+        for bs in self.binary_sensors:
+            bs.run(self.loop)
 
     def stop(self):
         if not is_emulator():

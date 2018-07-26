@@ -5,6 +5,7 @@ build_dir: _build_wifi_switch
 
 frozen:
   - platform/utils
+  - platform/sensor/binary.py
   - platform/switch/relay.py
   - platform/led/status.py
 

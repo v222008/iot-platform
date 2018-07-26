@@ -1,6 +1,10 @@
 # Internet Of Things Platform
 [Micropython](https://github.com/micropython/micropython) based IOT platform is a set of useful tools and utilities to build open source firmware for various devices like LED strip controllers / wall switches / temperature and humidity sensors.
 
+----
+### NOTE: development in progress
+----
+
 P.S. documentation writing in progress... :)
 
 ## Supported devices
