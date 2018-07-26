@@ -54,7 +54,6 @@ class WhiteLedStrip():
         self.mqtt.subscribe(self.cfg.mqtt_topic_led_control, self.mqtt_control)
 
     def _publish_mqtt_state(self, state):
-        print("published", self.cfg.mqtt_topic_led_status, state)
         self.mqtt.publish(self.cfg.mqtt_topic_led_status, str(state), retain=True)
 
     def on(self, data):
@@ -70,7 +69,6 @@ class WhiteLedStrip():
     async def _fade_effect(self, new_brightness, length, delay):
         # Run effect
         val = self.cfg.led_last_brightness
-        print("new cur", new_brightness, val)
         inc = (new_brightness - val) // length
         for step in range(length):
             val += inc
