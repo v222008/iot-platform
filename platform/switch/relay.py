@@ -30,8 +30,7 @@ class Relay():
         self.mqtt = mqtt
         self.cfg.add_param('mqtt_topic_relay{}_status'.format(self.num), 'relay{}'.format(self.num))
         self.cfg.add_param('mqtt_topic_relay{}_control'.format(self.num), 'relay{}/set'.format(self.num),
-                           callback=self.mqtt_config_changed,
-                           group='mqtt_config')
+                           callback=self.mqtt_config_changed)
         # Web endpoints
         web.add_resource(self, '/relay{}/on'.format(self.num), state=1)
         web.add_resource(self, '/relay{}/off'.format(self.num), state=0)
