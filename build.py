@@ -172,7 +172,9 @@ def build(cfg):
         pkg_dir = os.path.join('deps', 'micropython-lib', it)
         pkg, pymods = get_mlib_files(it)
         for p in pkg:
-            shell_run('cp -rf {}/ {}'.format(os.path.join(pkg_dir, p), os.path.join(mod_dir, p)))
+            dst_dir = os.path.join(mod_dir, p)
+            mkdir_p(dst_dir)
+            shell_run('cp -rf {}/* {}'.format(os.path.join(pkg_dir, p), dst_dir))
         for py in pymods:
             shutil.copy2(os.path.join(pkg_dir, py), mod_dir)
     # boot + device files
@@ -186,15 +188,18 @@ def build(cfg):
         else:
             dst = f
         shutil.copy2(os.path.join(cfg['_path'], f), os.path.join(mod_dir, dst))
+    # create build folder (to avoid permissions problems)
+    mkdir_p(os.path.join(build_dir, 'build'))
     # compile micropython for esp8266
     shell_run('docker run --rm '
               '-v`pwd`/deps/micropython:/micropython '
               '-v`pwd`/{}/modules:/micropython/ports/esp8266/modules '
-              '-v`pwd`/{}/esp8266:/micropython/ports/esp8266/build '
+              '-v`pwd`/{}/build:/micropython/ports/esp8266/build '
+              '-u `id -u` '
               'arsenicus/esp-open-sdk '
-              '/bin/bash -c ". ~/.bashrc && cd /micropython/ports/esp8266 && make"'.format(build_dir, build_dir))
+              '/bin/bash -c ". /.bashrc && cd /micropython/ports/esp8266 && make"'.format(build_dir, build_dir))
     # Prepare final image
-    base_firmware_fn = os.path.join(build_dir, 'esp8266', 'firmware-combined.bin')
+    base_firmware_fn = os.path.join(build_dir, 'build', 'firmware-combined.bin')
     if os.stat(base_firmware_fn).st_size > data_flash_start:
         print("\nERROR:Image too big, unable append file system.")
         quit(1)

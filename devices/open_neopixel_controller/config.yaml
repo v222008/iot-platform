@@ -21,12 +21,12 @@ micropython-lib:
   - uasyncio.synchro
   - logging
 
-# As an example for now
-filesystems:
-  /web:
-    ui-vuetify: ui/devices/open_neopixel_controller
-    readonly: true
-    gzip: true
+# Temporary commented out until new UI landed
+# filesystems:
+#   /web:
+#     ui-vuetify: ui/devices/open_neopixel_controller
+#     readonly: true
+#     gzip: true
 
 #   /data:
 #     files:
