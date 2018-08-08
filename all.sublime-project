@@ -15,7 +15,8 @@
 			[
 				"deps",
 				"build",
-				"_build_*"
+				"_build_*",
+				"node_modules",
 			],
 			"path": "."
 		},
